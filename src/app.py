@@ -1,5 +1,9 @@
+import json
+
 from flask import Flask, request, abort
 from justwatch import JustWatch
+from api.Movie_api import Recommend, TMDB
+from responce_format.res import res_format
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -9,10 +13,11 @@ from linebot.exceptions import (
 )
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, QuickReply, QuickReplyButton, PostbackAction, MessageAction,
+    FlexSendMessage, flex_message, BubbleContainer, ImageComponent, URIAction, ImageSendMessage,
 )
 from tinydb import TinyDB, Query
 
-from src.api.Movie_api import Recommend, TMDB
+
 
 app = Flask(__name__)
 
@@ -157,17 +162,17 @@ def handle_message(event: MessageEvent):
         elif mes == "コメディ":
             genre = "cmy"
         elif mes == "犯罪,戦争":
-            genre = ["crm","war"]
+            genre = "crm"
         elif mes == "ドキュメンタリー":
             genre = "doc"
         elif mes == "ドラマ":
             genre = "drm"
         elif mes == "ファンタジー,SF":
-            genre = ["fnt","scf"]
+            genre = "scf"
         elif mes == "歴史":
             genre = "hst"
         elif mes == "ホラー,ミステリー":
-            genre = ["hrr","trl"]
+            genre = "trl"
         elif mes == "ファミリー":
             genre = "fml"
         elif mes == "ミュージカル":
@@ -242,7 +247,7 @@ def handle_message(event: MessageEvent):
         db.update({"review_score": score, "ques_id": 5}, query.id == user_id)
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text='検索を開始してよろしいですか？',
+            TextSendMessage(text='検索を開始してよろしいですか？(5秒ほどかかります)',
                             quick_reply=QuickReply(items=[
                                 QuickReplyButton(action=MessageAction(label="大丈夫", text="大丈夫")),
                                 QuickReplyButton(action=MessageAction(label="初めからやり直す", text="初めからやり直す")),
@@ -255,12 +260,70 @@ def handle_message(event: MessageEvent):
         just_watch = JustWatch(country='JP')
 
         # DBからとってきた値を格納
-        content_type = "movie"
-        provider = "nfx"
-        genre = "null"
-        score = 0
+        content_type = db.search(query.id == user_id)[0]["content_type"]
+        provider = db.search(query.id == user_id)[0]["providers"]
+        genre = db.search(query.id == user_id)[0]["genre"]
+        score = db.search(query.id == user_id)[0]["review_score"]
+        print(content_type,provider,genre,score)
 
-        rec = Recommend(just_watch, content_type, provider, genre, score)
+        # インスタンス化を行う
+        try:
+            rec = Recommend(just_watch, content_type, provider, genre, score)
+            a = rec.info()
+        except:
+            line_bot_api.reply_message(
+            event.reply_token,
+                TextSendMessage(text='実行に失敗しました,お手数ですがもう一度お願いします。',
+                                quick_reply=QuickReply(items=[
+                                    QuickReplyButton(action=MessageAction(label="初めからやり直す", text="初めからやり直す")),
+                                ])
+                                )
+        )
+
+        # 以下、jsonに書き出す処理
+        res = res_format
+        for i in range(len(a)):
+            try:
+                api = TMDB(token, a[i])
+                movie_info = api.info()
+                res_body = res["contents"][i]
+            except:
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='実行に失敗しました,お手数ですがもう一度お願いします。',
+                                    quick_reply=QuickReply(items=[
+                                        QuickReplyButton(action=MessageAction(label="初めからやり直す", text="初めからやり直す")),
+                                    ])
+                                    )
+                )
+
+            # タイトルの代入
+            res_body["body"]["contents"][0]["text"] = movie_info["title"]
+
+            # 評価を代入
+            res_body["body"]["contents"][1]["contents"][-1]["text"] = movie_info["value"]
+
+            # 概要の代入
+            res_body["body"]["contents"][2]["contents"][0]["contents"][0]["text"] = movie_info["movie_outline"]
+
+            # imgの代入
+            res_body["hero"]["url"] = movie_info["img_url"]
+
+            #
+            res_body["footer"]["contents"][0]["action"]["uri"] = movie_info["url"]
+
+        # とりあえずレスポンス
+
+        line_bot_api.reply_message(
+            event.reply_token,
+            [
+                FlexSendMessage(
+                    alt_text='hello',
+                    contents=res_format
+                ),
+                TextSendMessage(text='もう一度探す場合は「探す」と入力してください')
+            ]
+        )
 
     else:
         line_bot_api.reply_message(
