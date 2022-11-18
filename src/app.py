@@ -22,11 +22,9 @@ from tinydb import TinyDB, Query
 app = Flask(__name__)
 
 # 環境変数一覧を記載
-LINE_CHANNEL_ACCESS_TOKEN = 'GmwhLIGLw6fm4aEJT2tzqFKp80nw5YY03VGR/BJdWKyAvmqsTTNxS/RnP9U2+bnHVbiig6BskVPgOfQGAM1Gr2iD/vjHulB5PitwNivjc39ihiBQsLkvxJQ/EgOv/tivdiI7UMqkO2DDTqskUHc8UwdB04t89/1O/w1cDnyilFU='
-LINE_CHANNEL_SECRET = '33465f56e279d8139a9b22a3b9e6a9e9'
+
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
-token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1Mzk3ZmQ5ODM3Y2I5NGJjOTQxNGQzNDM1NzQ4MThhYiIsInN1YiI6IjYxY2M3YTFjMzg1MjAyMDBhMjAxNDMyOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.fTfSukOtFlhbARDE08wit36Q-UYh6-lGG46NUyZmb00"
 
 # ここからTinyDBの処理
 db = TinyDB("db/user_items.json")
