@@ -2,8 +2,8 @@ import json,os
 
 from flask import Flask, request, abort
 from justwatch import JustWatch
-from api.Movie_api import Recommend, TMDB
-from responce_format.res import res_format
+from src.api.Movie_api import Recommend, TMDB
+from src.responce_format.res import res_format
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -22,9 +22,9 @@ from tinydb import TinyDB, Query
 app = Flask(__name__)
 
 # 環境変数一覧を記載
-LINE_CHANNEL_SECRET = os.environ["LINE_CHANNEL_ACCESS_TOKEN"]
+LINE_CHANNEL_SECRET = os.environ["LINE_CHANNEL_SECRET"]
 LINE_CHANNEL_ACCESS_TOKEN = os.environ["LINE_CHANNEL_ACCESS_TOKEN"]
-API_TOKEN = os.environ['API_TOKEN']
+API_TOKEN = os.environ["API_TOKEN"]
 
 # Linebotを使えるようにする準備
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
@@ -349,13 +349,11 @@ def handle_message(event: MessageEvent):
             provider = db.search(query.id == user_id)[0]["providers"]
             genre = db.search(query.id == user_id)[0]["genre"]
             score = db.search(query.id == user_id)[0]["review_score"]
-            print(content_type,provider,genre,score)
 
         # インスタンス化を行う
 
             rec = Recommend(just_watch, content_type, provider, genre, score)
             a = rec.info()
-            print("見つかった作品は",a)
             if len(a) == 0:
                 line_bot_api.reply_message(
                     event.reply_token,

@@ -25,7 +25,6 @@ class Recommend:
     def recommend(self):
         L = []
         i = random.randint(0,self.page_num)
-        print(i,self.page_num)
         results2 = self.just_watch.search_for_item(content_types=[self.content_type],providers=[self.provider],genres=[self.genre],scoring_filter_types=self.score,page=i)
         for j in range(len(results2["items"])):
             title = results2["items"][j]["title"]
@@ -49,7 +48,6 @@ class Recommend:
                 providers = movie_self_info["package_short_name"]
                 if providers == self.provider:
                     url = movie_self_info["urls"]["standard_web"]
-                    print(title_name,url)
                     break
 
             # 評価を取得
