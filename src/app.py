@@ -376,7 +376,7 @@ def handle_message(event: MessageEvent):
         res = res_format
         for i in range(len(a)):
             try:
-                api = TMDB(TOKEN, a[i])
+                api = TMDB(API_TOKEN, a[i])
                 movie_info = api.info()
                 res_body = res["contents"][i]
             except:
