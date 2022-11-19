@@ -22,9 +22,9 @@ from tinydb import TinyDB, Query
 app = Flask(__name__)
 
 # 環境変数一覧を記載
-LINE_CHANNEL_SECRET = os.environ["LINE_CHANNEL_SECRET"]
-LINE_CHANNEL_ACCESS_TOKEN = os.environ["LINE_CHANNEL_ACCESS_TOKEN"]
-API_TOKEN = os.environ["API_TOKEN"]
+LINE_CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET")
+LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN")
+API_TOKEN = os.getenv("API_TOKEN")
 
 # Linebotを使えるようにする準備
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
