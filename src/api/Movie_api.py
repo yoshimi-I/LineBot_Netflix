@@ -41,15 +41,16 @@ class Recommend:
         for i in num:
             # recommendメソッドで作った作品名で検索して出てきたurlを保持
             title_name  = title_list[i]
-            title_info = self.just_watch.search_for_item(query=str(title_name),providers=[self.provider],content_types=[self.content_type])
-            for j in range(len(title_info["items"])):
-                movie_info = (title_info)["items"][j]["offers"]
-                movie_first_info = movie_info[0]
-                provider = movie_first_info["package_short_name"]
-                if provider == self.provider:
-                    url = movie_first_info["urls"]["standard_web"]
-                    break
+            title_info = self.just_watch.search_for_item(query=str(title_name),page=0)
 
+            movie_info = title_info["items"][0]["offers"]
+            for j in range(len(movie_info)):
+                movie_self_info = movie_info[j]
+                providers = movie_self_info["package_short_name"]
+                if providers == self.provider:
+                    url = movie_self_info["urls"]["standard_web"]
+                    print(title_name,url)
+                    break
 
             # 評価を取得
             # なぜだかわからないが順番が毎回バラバラ(多分シーズン毎の評価だと思われる)
@@ -64,6 +65,7 @@ class Recommend:
                 break
 
         return watch_info
+
 
 class TMDB:
     def __init__(self, token, info):
