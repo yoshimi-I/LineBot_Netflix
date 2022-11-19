@@ -173,8 +173,8 @@ def handle_message(event: MessageEvent):
                                     QuickReplyButton(action=MessageAction(label="コメディ", text="コメディ")),
                                     QuickReplyButton(action=MessageAction(label="犯罪,戦争", text="犯罪,戦争")),
                                     QuickReplyButton(action=MessageAction(label="ドキュメンタリー", text="ドキュメンタリー")),
-                                    QuickReplyButton(action=MessageAction(label="ドラマ", text="ドラマ")),
-                                    QuickReplyButton(action=MessageAction(label="ファンタジー,SF", text="ファンタジー,SF")),
+                                    QuickReplyButton(action=MessageAction(label="SF", text="SF")),
+                                    QuickReplyButton(action=MessageAction(label="ファンタジー", text="ファンタジー")),
                                     QuickReplyButton(action=MessageAction(label="歴史", text="歴史")),
                                     QuickReplyButton(action=MessageAction(label="ホラー,ミステリー", text="ホラー,ミステリー")),
                                     QuickReplyButton(action=MessageAction(label="ファミリー", text="ファミリー")),
@@ -215,10 +215,10 @@ def handle_message(event: MessageEvent):
                 genre = "crm"
             elif mes == "ドキュメンタリー":
                 genre = "doc"
-            elif mes == "ドラマ":
-                genre = "drm"
-            elif mes == "ファンタジー,SF":
+            elif mes == "SF":
                 genre = "scf"
+            elif mes == "ファンタジー":
+                genre = "fnt"
             elif mes == "歴史":
                 genre = "hst"
             elif mes == "ホラー,ミステリー":
@@ -242,8 +242,8 @@ def handle_message(event: MessageEvent):
                                     QuickReplyButton(action=MessageAction(label="コメディ", text="コメディ")),
                                     QuickReplyButton(action=MessageAction(label="犯罪,戦争", text="犯罪,戦争")),
                                     QuickReplyButton(action=MessageAction(label="ドキュメンタリー", text="ドキュメンタリー")),
-                                    QuickReplyButton(action=MessageAction(label="ドラマ", text="ドラマ")),
-                                    QuickReplyButton(action=MessageAction(label="ファンタジー,SF", text="ファンタジー,SF")),
+                                    QuickReplyButton(action=MessageAction(label="SF", text="SF")),
+                                    QuickReplyButton(action=MessageAction(label="ファンタジー", text="ファンタジー")),
                                     QuickReplyButton(action=MessageAction(label="歴史", text="歴史")),
                                     QuickReplyButton(action=MessageAction(label="ホラー,ミステリー", text="ホラー,ミステリー")),
                                     QuickReplyButton(action=MessageAction(label="ファミリー", text="ファミリー")),
@@ -278,8 +278,8 @@ def handle_message(event: MessageEvent):
                                     QuickReplyButton(action=MessageAction(label="コメディ", text="コメディ")),
                                     QuickReplyButton(action=MessageAction(label="犯罪,戦争", text="犯罪,戦争")),
                                     QuickReplyButton(action=MessageAction(label="ドキュメンタリー", text="ドキュメンタリー")),
-                                    QuickReplyButton(action=MessageAction(label="ドラマ", text="ドラマ")),
-                                    QuickReplyButton(action=MessageAction(label="ファンタジー,SF", text="ファンタジー,SF")),
+                                    QuickReplyButton(action=MessageAction(label="SF", text="SF")),
+                                    QuickReplyButton(action=MessageAction(label="ファンタジー", text="ファンタジー")),
                                     QuickReplyButton(action=MessageAction(label="歴史", text="歴史")),
                                     QuickReplyButton(action=MessageAction(label="ホラー,ミステリー", text="ホラー,ミステリー")),
                                     QuickReplyButton(action=MessageAction(label="ファミリー", text="ファミリー")),
