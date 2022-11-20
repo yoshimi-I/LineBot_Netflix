@@ -48,6 +48,6 @@
    4. なんでもいい
 
 ## デモ動画
-![動画](https://user-images.githubusercontent.com/89241539/202896092-c15d7043-9001-4de9-8f76-16f55e8409fa.mp4)
+https://user-images.githubusercontent.com/89241539/202896092-c15d7043-9001-4de9-8f76-16f55e8409fa.mp4
 
    
