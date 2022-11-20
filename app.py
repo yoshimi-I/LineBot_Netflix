@@ -117,6 +117,7 @@ def handle_message(event: MessageEvent):
                                 ])
                                 )
                 )
+                return
 
             db.update({"providers": providers, "ques_id": 2}, query.id == user_id)
             line_bot_api.reply_message(
@@ -160,6 +161,7 @@ def handle_message(event: MessageEvent):
                                     ])
                                     )
                 )
+                return
 
 
             # まずはデータベースをアップデートする,そして受け取った値を保持する必要がある
@@ -188,13 +190,14 @@ def handle_message(event: MessageEvent):
         except:
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='実行に失敗しました,お手数ですがもう一度お願いします',
+                TextSendMessage(text='選択肢の中から選んでください',
                                 quick_reply=QuickReply(items=[
                                     QuickReplyButton(action=MessageAction(label="映画", text="映画")),
                                     QuickReplyButton(action=MessageAction(label="アニメ,ドラマ", text="アニメ,ドラマ")),
                                 ])
                                 )
             )
+            exit()
 
     elif db.search(query.id == user_id)[0]["ques_id"] == 3:
         try:
@@ -254,6 +257,7 @@ def handle_message(event: MessageEvent):
                                 ])
                                 )
                 )
+                return
 
 
             db.update({"genre": genre, "ques_id": 4}, query.id == user_id)
@@ -314,6 +318,7 @@ def handle_message(event: MessageEvent):
                                     ])
                                     )
                 )
+                return
 
             db.update({"review_score": score, "ques_id": 5}, query.id == user_id)
             line_bot_api.reply_message(
@@ -328,7 +333,7 @@ def handle_message(event: MessageEvent):
         except:
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='実行に失敗しました,お手数ですがもう一度最初からお願いします',
+                TextSendMessage(text='実行に失敗しました,お手数ですがもう一度お願いします',
                                 quick_reply=QuickReply(items=[
                                     QuickReplyButton(action=MessageAction(label="星4以上", text="星4以上")),
                                     QuickReplyButton(action=MessageAction(label="星3.5以上", text="星3.5以上")),
@@ -340,86 +345,118 @@ def handle_message(event: MessageEvent):
 
 
     elif db.search(query.id == user_id)[0]["ques_id"] == 5:
-        # 以下にAPIを呼び出す処理を記載
         try:
-            just_watch = JustWatch(country='JP')
+            mes = event.message.text
+            if mes == "大丈夫":
+                # 以下にAPIを呼び出す処理を記載
+                try:
+                    just_watch = JustWatch(country='JP')
 
-            # DBからとってきた値を格納
-            content_type = db.search(query.id == user_id)[0]["content_type"]
-            provider = db.search(query.id == user_id)[0]["providers"]
-            genre = db.search(query.id == user_id)[0]["genre"]
-            score = db.search(query.id == user_id)[0]["review_score"]
+                    # DBからとってきた値を格納
+                    content_type = db.search(query.id == user_id)[0]["content_type"]
+                    provider = db.search(query.id == user_id)[0]["providers"]
+                    genre = db.search(query.id == user_id)[0]["genre"]
+                    score = db.search(query.id == user_id)[0]["review_score"]
 
-        # インスタンス化を行う
+                # インスタンス化を行う
 
-            rec = Recommend(just_watch, content_type, provider, genre, score)
-            a = rec.info()
-            if len(a) == 0:
+                    rec = Recommend(just_watch, content_type, provider, genre, score)
+                    a = rec.info()
+                    if len(a) == 0:
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextSendMessage(text='条件に一致する作品が見つかりませんでした',
+                                            quick_reply=QuickReply(items=[
+                                                QuickReplyButton(action=MessageAction(label="初めからやり直す", text="初めからやり直す")),
+                                            ])
+                                            )
+                        )
+
+                except:
+                    line_bot_api.reply_message(
+                    event.reply_token,
+                        TextSendMessage(text='実行に失敗しました,お手数ですがもう一度お願いします',
+                                        quick_reply=QuickReply(items=[
+                                            QuickReplyButton(action=MessageAction(label="初めからやり直す", text="初めからやり直す")),
+                                        ])
+                                        )
+                )
+
+                # 以下、jsonに書き出す処理
+                res = res_format
+                for i in range(len(a)):
+                    try:
+                        api = TMDB(API_TOKEN, a[i])
+                        movie_info = api.info()
+                        res_body = res["contents"][i]
+                    except:
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextSendMessage(text='実行に失敗しました',
+                                            quick_reply=QuickReply(items=[
+                                                QuickReplyButton(action=MessageAction(label="再実行", text="再実行")),
+                                            ])
+                                            )
+                        )
+
+                    # 以下jsonに埋め込んでいく処理
+                    # タイトルの代入
+                    res_body["body"]["contents"][0]["text"] = movie_info["title"]
+
+                    # 評価を代入
+                    res_body["body"]["contents"][1]["contents"][-1]["text"] = movie_info["value"]
+
+                    # 概要の代入
+                    res_body["body"]["contents"][2]["contents"][0]["contents"][0]["text"] = movie_info["movie_outline"]
+
+                    # imgの代入
+                    res_body["hero"]["url"] = movie_info["img_url"]
+
+                    #
+                    res_body["footer"]["contents"][0]["action"]["uri"] = movie_info["url"]
+
+                # 確認の処理
+                print(content_type, provider, genre, score)
+
+                # とりあえずレスポンス
+
                 line_bot_api.reply_message(
                     event.reply_token,
-                    TextSendMessage(text='条件に一致する作品が見つかりませんでした',
+                    [
+                        # ここで入力した条件をもとに検索結果を返す
+                        FlexSendMessage(
+                            alt_text='hello',
+                            contents=res_format
+                        ),
+                        TextSendMessage(text='もう一度探す場合は「探す」と入力してください')
+                    ]
+                )
+                db.remove(query.id == user_id)
+            else:
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='選択肢の中から選んでください',
                                     quick_reply=QuickReply(items=[
+                                        QuickReplyButton(action=MessageAction(label="大丈夫", text="大丈夫")),
                                         QuickReplyButton(action=MessageAction(label="初めからやり直す", text="初めからやり直す")),
+
                                     ])
                                     )
                 )
-
+                return
         except:
             line_bot_api.reply_message(
-            event.reply_token,
+                event.reply_token,
                 TextSendMessage(text='実行に失敗しました,お手数ですがもう一度お願いします',
                                 quick_reply=QuickReply(items=[
+                                    QuickReplyButton(action=MessageAction(label="大丈夫", text="大丈夫")),
                                     QuickReplyButton(action=MessageAction(label="初めからやり直す", text="初めからやり直す")),
+
                                 ])
                                 )
-        )
+            )
 
-        # 以下、jsonに書き出す処理
-        res = res_format
-        for i in range(len(a)):
-            try:
-                api = TMDB(API_TOKEN, a[i])
-                movie_info = api.info()
-                res_body = res["contents"][i]
-            except:
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    TextSendMessage(text='実行に失敗しました',
-                                    quick_reply=QuickReply(items=[
-                                        QuickReplyButton(action=MessageAction(label="再実行", text="再実行")),
-                                    ])
-                                    )
-                )
 
-            # タイトルの代入
-            res_body["body"]["contents"][0]["text"] = movie_info["title"]
-
-            # 評価を代入
-            res_body["body"]["contents"][1]["contents"][-1]["text"] = movie_info["value"]
-
-            # 概要の代入
-            res_body["body"]["contents"][2]["contents"][0]["contents"][0]["text"] = movie_info["movie_outline"]
-
-            # imgの代入
-            res_body["hero"]["url"] = movie_info["img_url"]
-
-            #
-            res_body["footer"]["contents"][0]["action"]["uri"] = movie_info["url"]
-
-        # とりあえずレスポンス
-
-        line_bot_api.reply_message(
-            event.reply_token,
-            [
-                # ここで入力した条件をもとに検索結果を返す
-                FlexSendMessage(
-                    alt_text='hello',
-                    contents=res_format
-                ),
-                TextSendMessage(text='もう一度探す場合は「探す」と入力してください')
-            ]
-        )
-        db.remove(query.id == user_id)
 
     else:
         try:
