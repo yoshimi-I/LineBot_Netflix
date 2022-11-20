@@ -48,5 +48,6 @@
    4. なんでもいい
 
 ## デモ動画
-<div><video controls src="[<!---動画のURL--->](https://user-images.githubusercontent.com/89241539/202896092-c15d7043-9001-4de9-8f76-16f55e8409fa.mp4)" muted="false"></video></div>
+<iframe width="560" height="315" src="[https://user-images.githubusercontent.com/89241539/202896092-c15d7043-9001-4de9-8f76-16f55e8409fa.mp4]" frameborder="0" allowfullscreen></iframe>
+
    
