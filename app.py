@@ -166,7 +166,7 @@ def handle_message(event: MessageEvent):
             db.update({"content_type":content_type ,"ques_id": 3},query.id == user_id)
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='作品のジャンルを選んでください(右にスクロールできます)',
+                TextSendMessage(text='動画のジャンルを選んでください(右にスクロールできます)',
                                 quick_reply=QuickReply(items=[
                                     QuickReplyButton(action=MessageAction(label="アクション", text="アクション")),
                                     QuickReplyButton(action=MessageAction(label="アニメーション", text="アニメーション")),
@@ -259,13 +259,13 @@ def handle_message(event: MessageEvent):
             db.update({"genre": genre, "ques_id": 4}, query.id == user_id)
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='評価を選んでください',
+                TextSendMessage(text='動画の評価を選んでください',
                                 quick_reply=QuickReply(items=[
                                     QuickReplyButton(action=MessageAction(label="Top3", text="Top3")),
                                     QuickReplyButton(action=MessageAction(label="Top10の中から", text="Top10の中から")),
-                                    QuickReplyButton(action=MessageAction(label="星4以上ならなんでも", text="星4以上ならなんでも")),
-                                    QuickReplyButton(action=MessageAction(label="星3.5以上ならなんでも", text="星3.5以上ならなんでも")),
-                                    QuickReplyButton(action=MessageAction(label="星3以上ならなんでも", text="星3以上ならなんでも")),
+                                    QuickReplyButton(action=MessageAction(label="星4以上の中から", text="星4以上の中から")),
+                                    QuickReplyButton(action=MessageAction(label="星3.5以上の中から", text="星3.5以上の中から")),
+                                    QuickReplyButton(action=MessageAction(label="星3以上の中から", text="星3以上中から")),
                                     QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
                                 ])
                                 )
@@ -304,13 +304,13 @@ def handle_message(event: MessageEvent):
             elif mes == "Top10の中から":
                 score = 0
                 choice_num = 1
-            elif mes == "星4以上ならなんでも":
+            elif mes == "星4以上の中から":
                 score = 8
                 choice_num = 2
-            elif mes == "星3.5以上ならなんでも":
+            elif mes == "星3.5以上の中から":
                 score = 7
                 choice_num = 2
-            elif mes == "星3以上ならなんでも":
+            elif mes == "星3以上の中から":
                 score = 6
             elif mes == "なんでもいい":
                 score = 0
@@ -323,11 +323,11 @@ def handle_message(event: MessageEvent):
                                         QuickReplyButton(action=MessageAction(label="Top3", text="Top3")),
                                         QuickReplyButton(action=MessageAction(label="Top10の中から", text="Top10の中から")),
                                         QuickReplyButton(
-                                            action=MessageAction(label="星4以上ならなんでも", text="星4以上ならなんでも")),
+                                            action=MessageAction(label="星4以上の中から", text="星4以上の中から")),
                                         QuickReplyButton(
-                                            action=MessageAction(label="星3.5以上ならなんでも", text="星3.5以上ならなんでも")),
+                                            action=MessageAction(label="星3.5以上の中から", text="星3.5以上の中から")),
                                         QuickReplyButton(
-                                            action=MessageAction(label="星3以上ならなんでも", text="星3以上ならなんでも")),
+                                            action=MessageAction(label="星3以上の中から", text="星3以上の中から")),
                                         QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
                                     ])
                                     )
@@ -351,10 +351,10 @@ def handle_message(event: MessageEvent):
                                 quick_reply=QuickReply(items=[
                                     QuickReplyButton(action=MessageAction(label="Top3", text="Top3")),
                                     QuickReplyButton(action=MessageAction(label="Top10の中から", text="Top10の中から")),
-                                    QuickReplyButton(action=MessageAction(label="星4以上ならなんでも", text="星4以上ならなんでも")),
+                                    QuickReplyButton(action=MessageAction(label="星4以上の中から", text="星4以上の中から")),
                                     QuickReplyButton(
-                                        action=MessageAction(label="星3.5以上ならなんでも", text="星3.5以上ならなんでも")),
-                                    QuickReplyButton(action=MessageAction(label="星3以上ならなんでも", text="星3以上ならなんでも")),
+                                        action=MessageAction(label="星3.5以上の中から", text="星3.5以上の中から")),
+                                    QuickReplyButton(action=MessageAction(label="星3以上の中から", text="星3以上の中から")),
                                     QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
                                 ])
                                 )
