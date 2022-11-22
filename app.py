@@ -65,7 +65,7 @@ def handle_message(event: MessageEvent):
     if text == "探す" or text == "初めからやり直す":
         try:
             db.remove(query.id == user_id)
-            db.insert({"id": user_id, "content_type": None, "genre": None, "providers": None, "review_score": None,"ques_id": 1})
+            db.insert({"id": user_id, "content_type": None, "genre": None, "providers": None, "review_score": None,"choice_num" : 0,"ques_id": 1})
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='動画の視聴方法を選んでください',
@@ -180,7 +180,7 @@ def handle_message(event: MessageEvent):
                                     QuickReplyButton(action=MessageAction(label="ファミリー", text="ファミリー")),
                                     QuickReplyButton(action=MessageAction(label="ミュージカル", text="ミュージカル")),
                                     QuickReplyButton(action=MessageAction(label="ロマンス", text="ロマンス")),
-                                    QuickReplyButton(action=MessageAction(label="スポーツ", text="スポーツ")),
+                                    QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
 
                                 ])
                                 )
@@ -229,8 +229,8 @@ def handle_message(event: MessageEvent):
                 genre = "msc"
             elif mes == "ロマンス":
                 genre = "rma"
-            elif mes == "スポーツ":
-                genre = "spt"
+            elif mes == "なんでもいい":
+                genre = "null"
 
             else:
                 line_bot_api.reply_message(
@@ -249,7 +249,7 @@ def handle_message(event: MessageEvent):
                                     QuickReplyButton(action=MessageAction(label="ファミリー", text="ファミリー")),
                                     QuickReplyButton(action=MessageAction(label="ミュージカル", text="ミュージカル")),
                                     QuickReplyButton(action=MessageAction(label="ロマンス", text="ロマンス")),
-                                    QuickReplyButton(action=MessageAction(label="スポーツ", text="スポーツ")),
+                                    QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
 
                                 ])
                                 )
@@ -261,9 +261,11 @@ def handle_message(event: MessageEvent):
                 event.reply_token,
                 TextSendMessage(text='評価を選んでください',
                                 quick_reply=QuickReply(items=[
-                                    QuickReplyButton(action=MessageAction(label="星4以上", text="星4以上")),
-                                    QuickReplyButton(action=MessageAction(label="星3.5以上", text="星3.5以上")),
-                                    QuickReplyButton(action=MessageAction(label="星3以上", text="星3以上")),
+                                    QuickReplyButton(action=MessageAction(label="Top3", text="Top3")),
+                                    QuickReplyButton(action=MessageAction(label="Top10の中から", text="Top10の中から")),
+                                    QuickReplyButton(action=MessageAction(label="星4以上ならなんでも", text="星4以上ならなんでも")),
+                                    QuickReplyButton(action=MessageAction(label="星3.5以上ならなんでも", text="星3.5以上ならなんでも")),
+                                    QuickReplyButton(action=MessageAction(label="星3以上ならなんでも", text="星3以上ならなんでも")),
                                     QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
                                 ])
                                 )
@@ -285,37 +287,54 @@ def handle_message(event: MessageEvent):
                                     QuickReplyButton(action=MessageAction(label="ファミリー", text="ファミリー")),
                                     QuickReplyButton(action=MessageAction(label="ミュージカル", text="ミュージカル")),
                                     QuickReplyButton(action=MessageAction(label="ロマンス", text="ロマンス")),
-                                    QuickReplyButton(action=MessageAction(label="スポーツ", text="スポーツ")),
+                                    QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
 
                                 ])
                                 )
             )
 
     elif db.search(query.id == user_id)[0]["ques_id"] == 4:
+        score = 0
+        choice_num = 0
         try:
             mes = event.message.text
-            if mes == "星4以上":
+            if mes == "Top3":
+                score = 0
+                choice_num = 0
+            elif mes == "Top10の中から":
+                score = 0
+                choice_num = 1
+            elif mes == "星4以上ならなんでも":
                 score = 8
-            elif mes == "星3.5以上":
+                choice_num = 2
+            elif mes == "星3.5以上ならなんでも":
                 score = 7
-            elif mes == "星3以上":
+                choice_num = 2
+            elif mes == "星3以上ならなんでも":
                 score = 6
             elif mes == "なんでもいい":
                 score = 0
+                choice_num = 2
             else:
                 line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='選択肢の中から選んでください',
                                     quick_reply=QuickReply(items=[
-                                        QuickReplyButton(action=MessageAction(label="星4以上", text="星4以上")),
-                                        QuickReplyButton(action=MessageAction(label="星3.5以上", text="星3.5以上")),
-                                        QuickReplyButton(action=MessageAction(label="星3以上", text="星3以上")),
+                                        QuickReplyButton(action=MessageAction(label="Top3", text="Top3")),
+                                        QuickReplyButton(action=MessageAction(label="Top10の中から", text="Top10の中から")),
+                                        QuickReplyButton(
+                                            action=MessageAction(label="星4以上ならなんでも", text="星4以上ならなんでも")),
+                                        QuickReplyButton(
+                                            action=MessageAction(label="星3.5以上ならなんでも", text="星3.5以上ならなんでも")),
+                                        QuickReplyButton(
+                                            action=MessageAction(label="星3以上ならなんでも", text="星3以上ならなんでも")),
                                         QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
                                     ])
                                     )
                 )
 
-            db.update({"review_score": score, "ques_id": 5}, query.id == user_id)
+            # ここでDBに格納
+            db.update({"review_score": score, "ques_id": 5,"choice_num" : choice_num}, query.id == user_id)
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='検索を開始してよろしいですか？(5秒から10秒ほどかかります)',
@@ -330,9 +349,12 @@ def handle_message(event: MessageEvent):
                 event.reply_token,
                 TextSendMessage(text='実行に失敗しました,お手数ですがもう一度最初からお願いします',
                                 quick_reply=QuickReply(items=[
-                                    QuickReplyButton(action=MessageAction(label="星4以上", text="星4以上")),
-                                    QuickReplyButton(action=MessageAction(label="星3.5以上", text="星3.5以上")),
-                                    QuickReplyButton(action=MessageAction(label="星3以上", text="星3以上")),
+                                    QuickReplyButton(action=MessageAction(label="Top3", text="Top3")),
+                                    QuickReplyButton(action=MessageAction(label="Top10の中から", text="Top10の中から")),
+                                    QuickReplyButton(action=MessageAction(label="星4以上ならなんでも", text="星4以上ならなんでも")),
+                                    QuickReplyButton(
+                                        action=MessageAction(label="星3.5以上ならなんでも", text="星3.5以上ならなんでも")),
+                                    QuickReplyButton(action=MessageAction(label="星3以上ならなんでも", text="星3以上ならなんでも")),
                                     QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
                                 ])
                                 )
@@ -349,11 +371,11 @@ def handle_message(event: MessageEvent):
             provider = db.search(query.id == user_id)[0]["providers"]
             genre = db.search(query.id == user_id)[0]["genre"]
             score = db.search(query.id == user_id)[0]["review_score"]
-
+            choice_num = db.search(query.id == user_id)[0]["choice_num"]
         # インスタンス化を行う
 
             rec = Recommend(just_watch, content_type, provider, genre, score)
-            a = rec.info()
+            a = rec.info(choice_num)
             if len(a) == 0:
                 line_bot_api.reply_message(
                     event.reply_token,
