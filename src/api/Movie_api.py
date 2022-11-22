@@ -22,24 +22,52 @@ class Recommend:
         self.page_num = self.results["total_pages"]
         self.items = self.results["items"]
 
-    def recommend(self):
+    def top3(self):
         L = []
-        i = random.randint(0,self.page_num)
-        results2 = self.just_watch.search_for_item(content_types=[self.content_type],providers=[self.provider],genres=[self.genre],scoring_filter_types=self.score,page=i)
-        for j in range(len(results2["items"])):
-            title = results2["items"][j]["title"]
+        results = self.just_watch.search_for_item(content_types=[self.content_type], providers=[self.provider],genres=[self.genre], scoring_filter_types=self.score, page=1,)
+        #
+        for i in range(3):
+            title = results["items"][i]["title"]
             L.append(title)
         return L
+    def top10(self):
+        L = []
+        results = self.just_watch.search_for_item(content_types=[self.content_type], providers=[self.provider],genres=[self.genre], scoring_filter_types=self.score, page=1)
+        items_num = len(results["items"])
 
-    def info(self):
+        # lenの中から選ぶべき3つの作品のインデックスをランダムで取得
+        num = random.sample(range(items_num), 3)
+        for i in range(items_num):
+            if i in num:
+                title = results["items"][i]["title"]
+                L.append(title)
+        return L
+
+    def recommend(self):
+        L = []
+        # ページの番号をランダムで取得して,そのページからとってくる(forのネスト回避)
+        i = random.randint(0,self.page_num)
+        results2 = self.just_watch.search_for_item(content_types=[self.content_type],providers=[self.provider],genres=[self.genre],scoring_filter_types=self.score,page=i)
+        items_num = len(results2["items"])
+        num = random.sample(range(items_num), 3)
+        for j in range(items_num):
+            if j in num:
+                title = results2["items"][j]["title"]
+                L.append(title)
+        return L
+
+    def info(self,choice_num):
         watch_info = list()
-        title_list = self.recommend()
+        if choice_num == 0:
+            title_list = self.top3()
+        elif choice_num == 1:
+            title_list = self.top10()
+        else:
+            title_list = self.recommend()
         title_num = len(title_list)
-        num = random.sample(range(title_num), title_num)
         count = 0
-        for i in num:
+        for title_name in title_list:
             # recommendメソッドで作った作品名で検索して出てきたurlを保持
-            title_name  = title_list[i]
             title_info = self.just_watch.search_for_item(query=str(title_name),page=0)
 
             movie_info = title_info["items"][0]["offers"]
@@ -59,8 +87,6 @@ class Recommend:
                 if self.num <= value <= 10:
                     watch_info.append({"title":title_name,"url":url,"value":value,"content_type":self.content_type})
                     break
-            if len(watch_info) == 3:
-                break
 
         return watch_info
 
