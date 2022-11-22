@@ -65,7 +65,7 @@ def handle_message(event: MessageEvent):
     if text == "探す" or text == "初めからやり直す":
         try:
             db.remove(query.id == user_id)
-            db.insert({"id": user_id, "content_type": None, "genre": None, "providers": None, "review_score": None,"choice_num" : None,"start_year": None,"end_year": None,"ques_id": 1})
+            db.insert({"id": user_id, "content_type": None, "genre": None, "providers": None,"choice_num" : None,"start_year": None,"end_year": None,"ques_id": 1})
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='動画の視聴方法を選んでください',
@@ -259,11 +259,12 @@ def handle_message(event: MessageEvent):
             db.update({"genre": genre, "ques_id": 4}, query.id == user_id)
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='動画の評価を選んでください',
+                TextSendMessage(text='動画の放送時期を選んでください',
                                 quick_reply=QuickReply(items=[
-                                    QuickReplyButton(action=MessageAction(label="Top3", text="Top3")),
-                                    QuickReplyButton(action=MessageAction(label="Top10の中から", text="Top10の中から")),
-                                    QuickReplyButton(action=MessageAction(label="Top100の中から", text="Top100の中から")),
+                                    QuickReplyButton(action=MessageAction(label="~2000", text="~2000")),
+                                    QuickReplyButton(action=MessageAction(label="2000~2010", text="2000~2010")),
+                                    QuickReplyButton(action=MessageAction(label="2010~2020", text="2010~2020")),
+                                    QuickReplyButton(action=MessageAction(label="2020~現在", text="2020~現在")),
                                     QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
                                 ])
                                 )
@@ -292,59 +293,6 @@ def handle_message(event: MessageEvent):
             )
 
     elif db.search(query.id == user_id)[0]["ques_id"] == 4:
-        score = 0
-        choice_num = 0
-        try:
-            mes = event.message.text
-            if mes == "Top3":
-                choice_num = 0
-            elif mes == "Top10の中から":
-                choice_num = 1
-            elif mes == "Top100の中から":
-                choice_num = 2
-            elif mes == "なんでもいい":
-                choice_num = 3
-            else:
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    TextSendMessage(text='選択肢の中から選んでください',
-                                    quick_reply=QuickReply(items=[
-                                        QuickReplyButton(action=MessageAction(label="Top3", text="Top3")),
-                                        QuickReplyButton(action=MessageAction(label="Top10の中から", text="Top10の中から")),
-                                        QuickReplyButton(action=MessageAction(label="Top100の中から", text="Top100の中から")),
-                                        QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
-                                    ])
-                                    )
-                )
-
-            db.update({"choice_num": choice_num, "ques_id": 5}, query.id == user_id)
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text='動画の放送時期を選んでください',
-                                quick_reply=QuickReply(items=[
-                                    QuickReplyButton(action=MessageAction(label="~2000", text="~2000")),
-                                    QuickReplyButton(action=MessageAction(label="2000~2010", text="2000~2010")),
-                                    QuickReplyButton(action=MessageAction(label="2010~2020", text="2010~2020")),
-                                    QuickReplyButton(action=MessageAction(label="2020~現在", text="2020~現在")),
-                                    QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
-                                ])
-                                )
-            )
-        except:
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text='実行に失敗しました,お手数ですがもう一度最初からお願いします',
-                                quick_reply=QuickReply(items=[
-                                    QuickReplyButton(action=MessageAction(label="Top3", text="Top3")),
-                                    QuickReplyButton(action=MessageAction(label="Top10の中から", text="Top10の中から")),
-                                    QuickReplyButton(action=MessageAction(label="Top100の中から", text="Top100の中から")),
-                                    QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
-                                ])
-                                )
-            )
-    elif db.search(query.id == user_id)[0]["ques_id"] == 5:
-        # db.insert({"id": user_id, "content_type": None, "genre": None, "providers": None, "review_score": None,
-        #            "choice_num": None, "start_year": None, "end_year": None, "ques_id": 1})
         start_year = 0
         end_year = 999999
         try:
@@ -376,8 +324,61 @@ def handle_message(event: MessageEvent):
                                     )
                 )
 
+
+            db.update({"start_year": start_year, "end_year": end_year, "ques_id": 5}, query.id == user_id)
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='動画の評価を選んでください',
+                                quick_reply=QuickReply(items=[
+                                    QuickReplyButton(action=MessageAction(label="Top3", text="Top3")),
+                                    QuickReplyButton(action=MessageAction(label="Top10の中から", text="Top10の中から")),
+                                    QuickReplyButton(action=MessageAction(label="Top100の中から", text="Top100の中から")),
+                                    QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
+                                ])
+                                )
+            )
+        except:
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='実行に失敗しました,お手数ですがもう一度最初からお願いします',
+                                quick_reply=QuickReply(items=[
+                                    QuickReplyButton(action=MessageAction(label="~2000", text="~2000")),
+                                    QuickReplyButton(action=MessageAction(label="2000~2010", text="2000~2010")),
+                                    QuickReplyButton(action=MessageAction(label="2010~2020", text="2010~2020")),
+                                    QuickReplyButton(action=MessageAction(label="2020~現在", text="2020~現在")),
+                                    QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
+                                ])
+                                )
+            )
+    elif db.search(query.id == user_id)[0]["ques_id"] == 5:
+        # db.insert({"id": user_id, "content_type": None, "genre": None, "providers": None, "review_score": None,
+        #            "choice_num": None, "start_year": None, "end_year": None, "ques_id": 1})
+        choice_num = 0
+        try:
+            mes = event.message.text
+            if mes == "Top3":
+                choice_num = 0
+            elif mes == "Top10の中から":
+                choice_num = 1
+            elif mes == "Top100の中から":
+                choice_num = 2
+            elif mes == "なんでもいい":
+                choice_num = 3
+            else:
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='選択肢の中から選んでください',
+                                    quick_reply=QuickReply(items=[
+                                        QuickReplyButton(action=MessageAction(label="Top3", text="Top3")),
+                                        QuickReplyButton(action=MessageAction(label="Top10の中から", text="Top10の中から")),
+                                        QuickReplyButton(action=MessageAction(label="Top100の中から", text="Top100の中から")),
+                                        QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
+                                    ])
+                                    )
+                )
+
             # ここでDBに格納
-            db.update({"start_year": start_year,"end_year": end_year,"ques_id": 6}, query.id == user_id)
+            db.update({"choice_num": choice_num, "ques_id": 6}, query.id == user_id)
 
             line_bot_api.reply_message(
                 event.reply_token,
@@ -412,14 +413,13 @@ def handle_message(event: MessageEvent):
             content_type = db.search(query.id == user_id)[0]["content_type"]
             provider = db.search(query.id == user_id)[0]["providers"]
             genre = db.search(query.id == user_id)[0]["genre"]
-            score = db.search(query.id == user_id)[0]["review_score"]
             choice_num = db.search(query.id == user_id)[0]["choice_num"]
             start_year = db.search(query.id == user_id)[0]["start_year"]
             end_year = db.search(query.id == user_id)[0]["end_year"]
 
         # インスタンス化を行う
 
-            rec = Recommend(just_watch, content_type, provider, genre, score,start_year,end_year)
+            rec = Recommend(just_watch, content_type, provider, genre,0,start_year,end_year)
             a = rec.info(choice_num)
             if len(a) == 0:
                 line_bot_api.reply_message(
