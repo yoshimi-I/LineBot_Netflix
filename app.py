@@ -3,7 +3,11 @@ import json,os
 from flask import Flask, request, abort
 from justwatch import JustWatch
 from src.api.Movie_api import Recommend, TMDB
-from src.responce_format.res_5 import res_format
+from src.responce_format.res_1 import res_1_format
+from src.responce_format.res_2 import res_2_format
+from src.responce_format.res_3 import res_3_format
+from src.responce_format.res_4 import res_4_format
+from src.responce_format.res_5 import res_5_format
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -412,7 +416,7 @@ def handle_message(event: MessageEvent):
         # 以下にAPIを呼び出す処理を記載
         try:
             mes = event.message.text
-            if mes == "大丈夫":
+            if mes == "大丈夫" or "再実行":
                 pass
             else:
                 line_bot_api.reply_message(
@@ -440,6 +444,8 @@ def handle_message(event: MessageEvent):
             rec = Recommend(just_watch, content_type, provider, genre,0,start_year,end_year)
             print(content_type, provider, genre,start_year,end_year)
             a = rec.info(choice_num)
+            print(a)
+            # 受け取った値の数で条件分岐
             if len(a) == 0:
                 line_bot_api.reply_message(
                     event.reply_token,
@@ -449,57 +455,68 @@ def handle_message(event: MessageEvent):
                                     ])
                                     )
                 )
-
-
-
+            elif len(a) == 1:
+                res = res_1_format
+            elif len(a) == 2:
+                res = res_2_format
+            elif len(a) == 3:
+                res = res_3_format
+            elif len(a) == 4:
+                res = res_4_format
+            else:
+                res = res_5_format
             # 以下、jsonにとってきた値を代入していく
-            res = res_format
-            for i in range(len(a)):
-                try:
+            try:
+                for i in range(len(a)):
                     api = TMDB(API_TOKEN, a[i])
                     movie_info = api.info()
                     res_body = res["contents"][i]
-                except:
-                    line_bot_api.reply_message(
-                        event.reply_token,
-                        TextSendMessage(text='実行に失敗しました',
+
+
+                    # タイトルの代入
+                    res_body["body"]["contents"][0]["text"] = movie_info["title"]
+
+                    # 評価を代入
+                    res_body["body"]["contents"][1]["contents"][-1]["text"] = movie_info["value"]
+
+                    # 概要の代入
+                    res_body["body"]["contents"][2]["contents"][0]["contents"][0]["text"] = movie_info["movie_outline"]
+
+                    # imgの代入
+                    res_body["hero"]["url"] = movie_info["img_url"]
+
+                    #
+                    res_body["footer"]["contents"][0]["action"]["uri"] = movie_info["url"]
+
+                # とりあえずレスポンス
+
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    [
+                        # ここで入力した条件をもとに検索結果を返す
+                        FlexSendMessage(
+                            alt_text='hello',
+                            contents=res
+                        ),
+                        TextSendMessage(text="初めから探す場合は「探す」を、条件を変えずに検索をする場合は「再実行」を押してください",
                                         quick_reply=QuickReply(items=[
+                                            QuickReplyButton(action=MessageAction(label="探す", text="探す")),
                                             QuickReplyButton(action=MessageAction(label="再実行", text="再実行")),
                                         ])
                                         )
-                    )
+                    ]
+                )
 
-                # タイトルの代入
-                res_body["body"]["contents"][0]["text"] = movie_info["title"]
-
-                # 評価を代入
-                res_body["body"]["contents"][1]["contents"][-1]["text"] = movie_info["value"]
-
-                # 概要の代入
-                res_body["body"]["contents"][2]["contents"][0]["contents"][0]["text"] = movie_info["movie_outline"]
-
-                # imgの代入
-                res_body["hero"]["url"] = movie_info["img_url"]
-
-                #
-                res_body["footer"]["contents"][0]["action"]["uri"] = movie_info["url"]
-
-            # とりあえずレスポンス
-
-            line_bot_api.reply_message(
-                event.reply_token,
-                [
-                    # ここで入力した条件をもとに検索結果を返す
-                    FlexSendMessage(
-                        alt_text='hello',
-                        contents=res_format
-                    ),
-                    TextSendMessage(text='もう一度探す場合は「探す」と入力してください')
-                ]
-            )
-            db.remove(query.id == user_id)
-
-
+            except:
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='実行に失敗しました',
+                                    quick_reply=QuickReply(items=[
+                                        QuickReplyButton(action=MessageAction(label="再実行", text="再実行")),
+                                        QuickReplyButton(action=MessageAction(label="初めからやり直す", text="初めからやり直す"))
+                                    ])
+                                    )
+                )
         except:
                 line_bot_api.reply_message(
                 event.reply_token,
