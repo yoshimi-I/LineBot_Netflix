@@ -41,7 +41,7 @@ class Recommend:
 
     def top_first(self):
         L = []
-        choice_num = 3
+        choice_num = 5
         movie_list = self.select_movies(choice_num,1)
         if len(movie_list) <= choice_num:
             choice_num = len(movie_list)
@@ -51,10 +51,10 @@ class Recommend:
 
     def top_10(self):
         L = []
-        choice_num = 10
+        choice_num = 20
         movie_list = self.select_movies(choice_num,1)
-        output_num = 3
-        if len(movie_list) <= 3:
+        output_num = 5
+        if len(movie_list) <= 5:
             output_num = len(movie_list)
         num = random.sample(range(len(movie_list)), output_num)
         for k in num:
@@ -65,9 +65,9 @@ class Recommend:
     def top_100(self):
         L = []
         choice_num = 100
-        movie_list = self.select_movies(choice_num,4)
-        output_num = 3
-        if len(movie_list) <= 3:
+        movie_list = self.select_movies(choice_num,4) #1ページにつき30の作品があることがわかってるので4*30 > 100
+        output_num = 5
+        if len(movie_list) <= output_num:
             output_num = len(movie_list)
         num = random.sample(range(len(movie_list)), output_num)
         for k in num:
