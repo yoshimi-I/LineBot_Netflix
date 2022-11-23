@@ -3,7 +3,7 @@ import json,os
 from flask import Flask, request, abort
 from justwatch import JustWatch
 from src.api.Movie_api import Recommend, TMDB
-from src.responce_format.res import res_format
+from src.responce_format.res_5 import res_format
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -334,8 +334,8 @@ def handle_message(event: MessageEvent):
                 event.reply_token,
                 TextSendMessage(text='動画の評価を選んでください',
                                 quick_reply=QuickReply(items=[
-                                    QuickReplyButton(action=MessageAction(label="Top3", text="Top3")),
-                                    QuickReplyButton(action=MessageAction(label="Top10の中から", text="Top10の中から")),
+                                    QuickReplyButton(action=MessageAction(label="Top5", text="Top5")),
+                                    QuickReplyButton(action=MessageAction(label="Top20の中から", text="Top20の中から")),
                                     QuickReplyButton(action=MessageAction(label="Top100の中から", text="Top100の中から")),
                                     QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
                                 ])
@@ -358,9 +358,9 @@ def handle_message(event: MessageEvent):
         choice_num = 0
         try:
             mes = event.message.text
-            if mes == "Top3":
+            if mes == "Top5":
                 choice_num = 0
-            elif mes == "Top10の中から":
+            elif mes == "Top20の中から":
                 choice_num = 1
             elif mes == "Top100の中から":
                 choice_num = 2
@@ -371,8 +371,8 @@ def handle_message(event: MessageEvent):
                     event.reply_token,
                     TextSendMessage(text='選択肢の中から選んでください',
                                     quick_reply=QuickReply(items=[
-                                        QuickReplyButton(action=MessageAction(label="Top3", text="Top3")),
-                                        QuickReplyButton(action=MessageAction(label="Top10の中から", text="Top10の中から")),
+                                        QuickReplyButton(action=MessageAction(label="Top5", text="Top5")),
+                                        QuickReplyButton(action=MessageAction(label="Top20の中から", text="Top20の中から")),
                                         QuickReplyButton(action=MessageAction(label="Top100の中から", text="Top100の中から")),
                                         QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
                                     ])
@@ -452,7 +452,7 @@ def handle_message(event: MessageEvent):
 
 
 
-            # 以下、jsonに書き出す処理
+            # 以下、jsonにとってきた値を代入していく
             res = res_format
             for i in range(len(a)):
                 try:
