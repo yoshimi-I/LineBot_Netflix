@@ -466,63 +466,52 @@ def handle_message(event: MessageEvent):
             else:
                 res = res_5_format
             # 以下、jsonにとってきた値を代入していく
-            try:
-                for i in range(len(a)):
-                    api = TMDB(API_TOKEN, a[i])
-                    movie_info = api.info()
-                    res_body = res["contents"][i]
+            for i in range(len(a)):
+                api = TMDB(API_TOKEN, a[i])
+                movie_info = api.info()
+                res_body = res["contents"][i]
 
 
-                    # タイトルの代入
-                    res_body["body"]["contents"][0]["text"] = movie_info["title"]
+                # タイトルの代入
+                res_body["body"]["contents"][0]["text"] = movie_info["title"]
 
-                    # 評価を代入
-                    res_body["body"]["contents"][1]["contents"][-1]["text"] = movie_info["value"]
+                # 評価を代入
+                res_body["body"]["contents"][1]["contents"][-1]["text"] = movie_info["value"]
 
-                    # 概要の代入
-                    res_body["body"]["contents"][2]["contents"][0]["contents"][0]["text"] = movie_info["movie_outline"]
+                # 概要の代入
+                res_body["body"]["contents"][2]["contents"][0]["contents"][0]["text"] = movie_info["movie_outline"]
 
-                    # imgの代入
-                    res_body["hero"]["url"] = movie_info["img_url"]
+                # imgの代入
+                res_body["hero"]["url"] = movie_info["img_url"]
 
-                    #
-                    res_body["footer"]["contents"][0]["action"]["uri"] = movie_info["url"]
+                #
+                res_body["footer"]["contents"][0]["action"]["uri"] = movie_info["url"]
 
-                # とりあえずレスポンス
+            # とりあえずレスポンス
 
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    [
-                        # ここで入力した条件をもとに検索結果を返す
-                        FlexSendMessage(
-                            alt_text='hello',
-                            contents=res
-                        ),
-                        TextSendMessage(text="初めから探す場合は「探す」を、条件を変えずに検索をする場合は「再実行」を押してください",
-                                        quick_reply=QuickReply(items=[
-                                            QuickReplyButton(action=MessageAction(label="探す", text="探す")),
-                                            QuickReplyButton(action=MessageAction(label="再実行", text="再実行")),
-                                        ])
-                                        )
-                    ]
-                )
-
-            except:
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    TextSendMessage(text='実行に失敗しました',
+            line_bot_api.reply_message(
+                event.reply_token,
+                [
+                    # ここで入力した条件をもとに検索結果を返す
+                    FlexSendMessage(
+                        alt_text='hello',
+                        contents=res
+                    ),
+                    TextSendMessage(text="初めから探す場合は「探す」を、条件を変えずに検索をする場合は「再実行」を押してください",
                                     quick_reply=QuickReply(items=[
+                                        QuickReplyButton(action=MessageAction(label="探す", text="探す")),
                                         QuickReplyButton(action=MessageAction(label="再実行", text="再実行")),
-                                        QuickReplyButton(action=MessageAction(label="初めからやり直す", text="初めからやり直す"))
                                     ])
                                     )
-                )
+                ]
+            )
         except:
                 line_bot_api.reply_message(
                 event.reply_token,
                     TextSendMessage(text='実行に失敗しました,お手数ですがもう一度お願いします',
                                     quick_reply=QuickReply(items=[
                                         QuickReplyButton(action=MessageAction(label="初めからやり直す", text="初めからやり直す")),
+                                        QuickReplyButton(action=MessageAction(label="再実行", text="再実行"))
                                     ])
                                     )
             )
