@@ -20,7 +20,7 @@ class Recommend:
 							"min_scoring_value":score,"max_scoring_value":10.0
 							}
 }
-        self.results = self.just_watch.search_for_item(content_types=[self.content_type],providers=[self.provider],genres=[self.genre],scoring_filter_types=self.score)
+        self.results = self.just_watch.search_for_item(content_types=[self.content_type],providers=[self.provider],genres=[self.genre],scoring_filter_types=self.score,release_year_from=self.start_year,release_year_until=self.end_year)
         self.page_num = self.results["total_pages"]
         self.items = self.results["items"]
 
@@ -78,7 +78,7 @@ class Recommend:
 
     def recommend(self):
         L = []
-        choice_num = 3
+        choice_num = 5
         # ページの番号をランダムで取得して,そのページからとってくる(forのネスト回避)
         i = random.randint(0,self.page_num)
         results2 = self.just_watch.search_for_item(content_types=[self.content_type],providers=[self.provider],genres=[self.genre],scoring_filter_types=self.score,page=i,release_year_from=self.start_year,release_year_until=self.end_year)
