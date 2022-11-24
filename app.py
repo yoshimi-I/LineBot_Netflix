@@ -126,7 +126,7 @@ def handle_message(event: MessageEvent):
             db.update({"providers": providers, "ques_id": 2}, query.id == user_id)
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='作品の種類を選んでください',
+                TextSendMessage(text='動画の種類を選んでください',
                                 quick_reply=QuickReply(items=[
                                     QuickReplyButton(action=MessageAction(label="映画", text="映画")),
                                     QuickReplyButton(action=MessageAction(label="アニメ,ドラマ", text="アニメ,ドラマ")),
@@ -416,7 +416,7 @@ def handle_message(event: MessageEvent):
         # 以下にAPIを呼び出す処理を記載
         try:
             mes = event.message.text
-            if mes == "大丈夫" or "再実行":
+            if mes == "大丈夫" or mes == "再実行":
                 pass
             else:
                 line_bot_api.reply_message(
