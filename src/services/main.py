@@ -1,5 +1,6 @@
 from justwatch import JustWatch
 from src.api.Movie_api import Recommend, TMDB
+from src.entity.entity import UserItems
 from src.responce_format.res_1 import res_1_format
 from src.responce_format.res_2 import res_2_format
 from src.responce_format.res_3 import res_3_format
@@ -378,20 +379,21 @@ def handle_main_func(event,text,user_id,db,query,API_TOKEN,line_bot_api):
                 )
                 return
 
-            # インスタンス化を行う
+            # インスタンス化を行う(APIとEntity)
             just_watch = JustWatch(country='JP')
+            user_items = UserItems(db,query,user_id)
 
             # DBからとってきた値を格納
-            content_type = db.search(query.id == user_id)[0]["content_type"]
-            provider = db.search(query.id == user_id)[0]["providers"]
-            genre = db.search(query.id == user_id)[0]["genre"]
-            choice_num = db.search(query.id == user_id)[0]["choice_num"]
-            start_year = db.search(query.id == user_id)[0]["start_year"]
-            end_year = db.search(query.id == user_id)[0]["end_year"]
+            content_type = user_items.content_type
+            provider = user_items.provider
+            genre = user_items.genre
+            choice_num = user_items.choice_num
+            start_year = user_items.start_year
+            end_year = user_items.end_year
+
+            # APIを叩く処理
             rec = Recommend(just_watch, content_type, provider, genre,0,start_year,end_year)
-            print(content_type, provider, genre,start_year,end_year)
             a = rec.info(choice_num)
-            print(a)
             # 受け取った値の数で条件分岐
             if len(a) == 0:
                 line_bot_api.reply_message(
