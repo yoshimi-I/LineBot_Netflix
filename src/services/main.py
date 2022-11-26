@@ -18,7 +18,11 @@ from linebot.models import (
 def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
     # firebaseを扱うためにインスタンス化を行う
     firebase = FirebaseCRUD()
-    ques_num = firebase.read_document("ques_id", user_id)
+    try:
+        ques_num = firebase.read_document("ques_id", user_id)
+    except:
+        ques_num = 0
+
 
     if text == "探す" or text == "初めからやり直す":
         try:
