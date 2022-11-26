@@ -1,6 +1,9 @@
 from justwatch import JustWatch
 from src.api.Movie_api import Recommend, TMDB
-from src.entity.entity import UserItems
+from src.db.firebase import FirebaseCRUD
+from src.dto.user_items_dto import UserItemsDTO
+from src.entity.entity import UserItemsEntity
+
 from src.responce_format.res_1 import res_1_format
 from src.responce_format.res_2 import res_2_format
 from src.responce_format.res_3 import res_3_format
@@ -8,21 +11,28 @@ from src.responce_format.res_4 import res_4_format
 from src.responce_format.res_5 import res_5_format
 
 from linebot.models import (
-    TextSendMessage, QuickReply, QuickReplyButton, MessageAction,FlexSendMessage
+    TextSendMessage, QuickReply, QuickReplyButton, MessageAction, FlexSendMessage
 )
 
 
-def handle_main_func(event,text,user_id,db,query,API_TOKEN,line_bot_api):
+def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
+    # firebaseを扱うためにインスタンス化を行う
+    firebase = FirebaseCRUD()
+    ques_num = firebase.read_document("ques_id", user_id)
 
     if text == "探す" or text == "初めからやり直す":
         try:
-            db.remove(query.id == user_id)
-            db.insert({"id": user_id, "content_type": None, "genre": None, "providers": None,"choice_num" : None,"start_year": None,"end_year": None,"ques_id": 1})
+            # まずは最初にDBのテーブルを作成
+            user_items = UserItemsDTO(user_id, "null", "null", "null", 0, 0, 9999, 1)
+            firebase.create_document(user_items)
+
+            # 返却する言葉を実装
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='動画の視聴方法を選んでください',
                                 quick_reply=QuickReply(items=[
-                                    QuickReplyButton(action=MessageAction(label="Amazon prime video", text="Amazon prime video")),
+                                    QuickReplyButton(
+                                        action=MessageAction(label="Amazon prime video", text="Amazon prime video")),
                                     QuickReplyButton(action=MessageAction(label="Netflix", text="Netflix")),
                                     QuickReplyButton(action=MessageAction(label="hulu", text="hulu")),
                                     QuickReplyButton(action=MessageAction(label="U-NEXT", text="U-NEXT")),
@@ -41,17 +51,15 @@ def handle_main_func(event,text,user_id,db,query,API_TOKEN,line_bot_api):
             )
 
 
-    elif db.search(query.id == user_id)[0]["ques_id"] == 1:
+    elif ques_num == 1:
         try:
             mes = event.message.text
-            # 何かしらの処理で読み込まれなかった時用の保険
-            providers = "null"
             if mes == "Amazon prime video":
                 providers = "amp"
             elif mes == "Netflix":
                 providers = "nfx"
             elif mes == "hulu":
-                providers ="hlu"
+                providers = "hlu"
             elif mes == "U-NEXT":
                 providers = "unx"
             elif mes == "Disney+":
@@ -59,19 +67,21 @@ def handle_main_func(event,text,user_id,db,query,API_TOKEN,line_bot_api):
             else:
                 line_bot_api.reply_message(
                     event.reply_token,
-                TextSendMessage(text='選択肢の中から選んでください',
-                                quick_reply=QuickReply(items=[
-                                    QuickReplyButton(action=MessageAction(label="Amazon prime video", text="Amazon prime video")),
-                                    QuickReplyButton(action=MessageAction(label="Netflix", text="Netflix")),
-                                    QuickReplyButton(action=MessageAction(label="hulu", text="hulu")),
-                                    QuickReplyButton(action=MessageAction(label="U-NEXT", text="U-NEXT")),
-                                    QuickReplyButton(action=MessageAction(label="Disney+", text="Disney+")),
-                                ])
-                                )
+                    TextSendMessage(text='選択肢の中から選んでください',
+                                    quick_reply=QuickReply(items=[
+                                        QuickReplyButton(action=MessageAction(label="Amazon prime video",
+                                                                              text="Amazon prime video")),
+                                        QuickReplyButton(action=MessageAction(label="Netflix", text="Netflix")),
+                                        QuickReplyButton(action=MessageAction(label="hulu", text="hulu")),
+                                        QuickReplyButton(action=MessageAction(label="U-NEXT", text="U-NEXT")),
+                                        QuickReplyButton(action=MessageAction(label="Disney+", text="Disney+")),
+                                    ])
+                                    )
                 )
                 return
 
-            db.update({"providers": providers, "ques_id": 2}, query.id == user_id)
+            # ここでDBの値を更新
+            firebase.update_document(["providers","ques_id"],[providers,2],user_id)
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='動画の種類を選んでください',
@@ -86,7 +96,8 @@ def handle_main_func(event,text,user_id,db,query,API_TOKEN,line_bot_api):
                 event.reply_token,
                 TextSendMessage(text='実行に失敗しました,お手数ですがもう一度お願いします',
                                 quick_reply=QuickReply(items=[
-                                    QuickReplyButton(action=MessageAction(label="Amazon prime video", text="Amazon prime video")),
+                                    QuickReplyButton(
+                                        action=MessageAction(label="Amazon prime video", text="Amazon prime video")),
                                     QuickReplyButton(action=MessageAction(label="Netflix", text="Netflix")),
                                     QuickReplyButton(action=MessageAction(label="hulu", text="hulu")),
                                     QuickReplyButton(action=MessageAction(label="U-NEXT", text="U-NEXT")),
@@ -95,7 +106,7 @@ def handle_main_func(event,text,user_id,db,query,API_TOKEN,line_bot_api):
                                 )
             )
 
-    elif db.search(query.id == user_id)[0]["ques_id"] == 2:
+    elif ques_num == 2:
         try:
             mes = event.message.text
             content_type = "null"
@@ -115,9 +126,8 @@ def handle_main_func(event,text,user_id,db,query,API_TOKEN,line_bot_api):
                 )
                 return
 
-
-            # まずはデータベースをアップデートする,そして受け取った値を保持する必要がある
-            db.update({"content_type":content_type ,"ques_id": 3},query.id == user_id)
+            # ここでDBの値を更新
+            firebase.update_document(["content_type", "ques_id"], [content_type, 3], user_id)
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='動画のジャンルを選んでください(右にスクロールできます)',
@@ -150,15 +160,12 @@ def handle_main_func(event,text,user_id,db,query,API_TOKEN,line_bot_api):
                                 )
             )
 
-    elif db.search(query.id == user_id)[0]["ques_id"] == 3:
+    elif ques_num == 3:
         try:
             # 受け取る値は1つまえの選択肢となる
             mes = event.message.text
 
-            # とりあえず初期化
-            genre = "null"
-
-            # 以下受け取った値をもとにDBへ格納する文字列を決める(本当は直接書きたかったけど,文字がバイト形で入るので無理だった)
+            # 以下受け取った値をもとにDBへ格納する文字列を決める
             if mes == "アクション":
                 genre = "act"
             elif mes == "アニメーション":
@@ -188,30 +195,30 @@ def handle_main_func(event,text,user_id,db,query,API_TOKEN,line_bot_api):
 
             else:
                 line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text='選択肢の中から選んでください(右にスクロールできます)',
-                                quick_reply=QuickReply(items=[
-                                    QuickReplyButton(action=MessageAction(label="アクション", text="アクション")),
-                                    QuickReplyButton(action=MessageAction(label="アニメーション", text="アニメーション")),
-                                    QuickReplyButton(action=MessageAction(label="コメディ", text="コメディ")),
-                                    QuickReplyButton(action=MessageAction(label="犯罪,戦争", text="犯罪,戦争")),
-                                    QuickReplyButton(action=MessageAction(label="ドキュメンタリー", text="ドキュメンタリー")),
-                                    QuickReplyButton(action=MessageAction(label="SF", text="SF")),
-                                    QuickReplyButton(action=MessageAction(label="ファンタジー", text="ファンタジー")),
-                                    QuickReplyButton(action=MessageAction(label="歴史", text="歴史")),
-                                    QuickReplyButton(action=MessageAction(label="ホラー,ミステリー", text="ホラー,ミステリー")),
-                                    QuickReplyButton(action=MessageAction(label="ファミリー", text="ファミリー")),
-                                    QuickReplyButton(action=MessageAction(label="ミュージカル", text="ミュージカル")),
-                                    QuickReplyButton(action=MessageAction(label="ロマンス", text="ロマンス")),
-                                    QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
+                    event.reply_token,
+                    TextSendMessage(text='選択肢の中から選んでください(右にスクロールできます)',
+                                    quick_reply=QuickReply(items=[
+                                        QuickReplyButton(action=MessageAction(label="アクション", text="アクション")),
+                                        QuickReplyButton(action=MessageAction(label="アニメーション", text="アニメーション")),
+                                        QuickReplyButton(action=MessageAction(label="コメディ", text="コメディ")),
+                                        QuickReplyButton(action=MessageAction(label="犯罪,戦争", text="犯罪,戦争")),
+                                        QuickReplyButton(action=MessageAction(label="ドキュメンタリー", text="ドキュメンタリー")),
+                                        QuickReplyButton(action=MessageAction(label="SF", text="SF")),
+                                        QuickReplyButton(action=MessageAction(label="ファンタジー", text="ファンタジー")),
+                                        QuickReplyButton(action=MessageAction(label="歴史", text="歴史")),
+                                        QuickReplyButton(action=MessageAction(label="ホラー,ミステリー", text="ホラー,ミステリー")),
+                                        QuickReplyButton(action=MessageAction(label="ファミリー", text="ファミリー")),
+                                        QuickReplyButton(action=MessageAction(label="ミュージカル", text="ミュージカル")),
+                                        QuickReplyButton(action=MessageAction(label="ロマンス", text="ロマンス")),
+                                        QuickReplyButton(action=MessageAction(label="なんでもいい", text="なんでもいい")),
 
-                                ])
-                                )
+                                    ])
+                                    )
                 )
                 return
 
-
-            db.update({"genre": genre, "ques_id": 4}, query.id == user_id)
+            # ここでDBの値を更新
+            firebase.update_document(["genre", "ques_id"], [genre, 4], user_id)
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='動画の放送時期を選んでください',
@@ -247,9 +254,9 @@ def handle_main_func(event,text,user_id,db,query,API_TOKEN,line_bot_api):
                                 )
             )
 
-    elif db.search(query.id == user_id)[0]["ques_id"] == 4:
+    elif ques_num == 4:
         start_year = 0
-        end_year = 999999
+        end_year = 9999
         try:
             mes = event.message.text
             if mes == "~2000":
@@ -264,7 +271,7 @@ def handle_main_func(event,text,user_id,db,query,API_TOKEN,line_bot_api):
                 start_year = 2020
             elif mes == "なんでもいい":
                 start_year = 0
-                end_year = 999999
+                end_year = 9999
             else:
                 line_bot_api.reply_message(
                     event.reply_token,
@@ -280,8 +287,8 @@ def handle_main_func(event,text,user_id,db,query,API_TOKEN,line_bot_api):
                 )
                 return
 
-
-            db.update({"start_year": start_year, "end_year": end_year, "ques_id": 5}, query.id == user_id)
+            # ここでDBの値を更新
+            firebase.update_document(["start_year","end_year","ques_id"],[start_year,end_year,5],user_id)
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='動画の評価を選んでください',
@@ -306,7 +313,7 @@ def handle_main_func(event,text,user_id,db,query,API_TOKEN,line_bot_api):
                                 ])
                                 )
             )
-    elif db.search(query.id == user_id)[0]["ques_id"] == 5:
+    elif ques_num == 5:
         choice_num = 0
         try:
             mes = event.message.text
@@ -333,7 +340,7 @@ def handle_main_func(event,text,user_id,db,query,API_TOKEN,line_bot_api):
                 return
 
             # ここでDBに格納
-            db.update({"choice_num": choice_num, "ques_id": 6}, query.id == user_id)
+            firebase.update_document(["choice_num","ques_id"], [choice_num,6], user_id)
 
             line_bot_api.reply_message(
                 event.reply_token,
@@ -359,7 +366,7 @@ def handle_main_func(event,text,user_id,db,query,API_TOKEN,line_bot_api):
             )
 
 
-    elif db.search(query.id == user_id)[0]["ques_id"] == 6:
+    elif ques_num == 6:
 
         # 以下にAPIを呼び出す処理を記載
         try:
@@ -381,19 +388,21 @@ def handle_main_func(event,text,user_id,db,query,API_TOKEN,line_bot_api):
 
             # インスタンス化を行う(APIとEntity)
             just_watch = JustWatch(country='JP')
-            user_items = UserItems(db,query,user_id)
+            db_items = firebase.read_all_document(user_id)
+            user_items = UserItemsEntity(db_items)
 
             # DBからとってきた値を格納
             content_type = user_items.content_type
-            provider = user_items.provider
+            providers = user_items.providers
             genre = user_items.genre
             choice_num = user_items.choice_num
             start_year = user_items.start_year
             end_year = user_items.end_year
 
             # APIを叩く処理
-            rec = Recommend(just_watch, content_type, provider, genre,0,start_year,end_year)
+            rec = Recommend(just_watch, content_type, providers, genre, 0, start_year, end_year)
             a = rec.info(choice_num)
+            print(just_watch, content_type, providers, genre, 0, start_year, end_year)
             # 受け取った値の数で条件分岐
             if len(a) == 0:
                 line_bot_api.reply_message(
@@ -419,7 +428,6 @@ def handle_main_func(event,text,user_id,db,query,API_TOKEN,line_bot_api):
                 api = TMDB(API_TOKEN, a[i])
                 movie_info = api.info()
                 res_body = res["contents"][i]
-
 
                 # タイトルの代入
                 res_body["body"]["contents"][0]["text"] = movie_info["title"]
@@ -455,21 +463,18 @@ def handle_main_func(event,text,user_id,db,query,API_TOKEN,line_bot_api):
                 ]
             )
         except:
-                line_bot_api.reply_message(
+            line_bot_api.reply_message(
                 event.reply_token,
-                    TextSendMessage(text='実行に失敗しました,お手数ですがもう一度お願いします',
-                                    quick_reply=QuickReply(items=[
-                                        QuickReplyButton(action=MessageAction(label="初めからやり直す", text="初めからやり直す")),
-                                        QuickReplyButton(action=MessageAction(label="再実行", text="再実行"))
-                                    ])
-                                    )
+                TextSendMessage(text='実行に失敗しました,お手数ですがもう一度お願いします',
+                                quick_reply=QuickReply(items=[
+                                    QuickReplyButton(action=MessageAction(label="初めからやり直す", text="初めからやり直す")),
+                                    QuickReplyButton(action=MessageAction(label="再実行", text="再実行"))
+                                ])
+                                )
             )
 
     else:
-        try:
-            db.remove(query.id == user_id)
-        except:
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage("「探す」と入力することで映画の検索を開始します")
-            )
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage("「探す」と入力することで映画の検索を開始します")
+        )

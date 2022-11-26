@@ -24,8 +24,7 @@ handler = WebhookHandler(LINE_CHANNEL_SECRET)
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 
 
-db = TinyDB("src/db/user_items.json")
-query = Query()
+
 
 
 @app.route("/callback", methods=['POST'])
@@ -51,7 +50,7 @@ def callback():
 def handle_message(event: MessageEvent):
     text = event.message.text
     user_id = event.source.user_id
-    handle_main_func(event,text,user_id,db,query,API_TOKEN,line_bot_api)
+    handle_main_func(event,text,user_id,API_TOKEN,line_bot_api)
 
 if __name__ == "__main__":
     app.run()
