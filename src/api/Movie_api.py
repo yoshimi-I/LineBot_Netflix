@@ -6,7 +6,7 @@ import json
 
 
 class Recommend:
-    def __init__(self,just_watch,content_type,provider,genre,score,start_year,end_year):
+    def __init__(self, just_watch, content_type, provider, genre, score, start_year, end_year):
         self.just_watch = just_watch
         self.content_type = content_type
         self.provider = provider
@@ -15,21 +15,27 @@ class Recommend:
         self.start_year = start_year
         self.end_year = end_year
         self.score = {
-						"imdb:score":
-							{
-							"min_scoring_value":score,"max_scoring_value":10.0
-							}
-}
-        self.results = self.just_watch.search_for_item(content_types=[self.content_type],providers=[self.provider],genres=[self.genre],scoring_filter_types=self.score,release_year_from=self.start_year,release_year_until=self.end_year)
+            "imdb:score":
+                {
+                    "min_scoring_value": score, "max_scoring_value": 10.0
+                }
+        }
+        self.results = self.just_watch.search_for_item(content_types=[self.content_type], providers=[self.provider],
+                                                       genres=[self.genre], scoring_filter_types=self.score,
+                                                       release_year_from=self.start_year,
+                                                       release_year_until=self.end_year)
         self.page_num = self.results["total_pages"]
         self.items = self.results["items"]
 
-    def select_movies(self,num,page_num):
+    def select_movies(self, num, page_num):
         L = []
         movie_list = []
         total_page = page_num
         for i in range(total_page):
-            results = self.just_watch.search_for_item(content_types=[self.content_type], providers=[self.provider],genres=[self.genre], scoring_filter_types=self.score, page=i,release_year_from=self.start_year,release_year_until=self.end_year)
+            results = self.just_watch.search_for_item(content_types=[self.content_type], providers=[self.provider],
+                                                      genres=[self.genre], scoring_filter_types=self.score, page=i,
+                                                      release_year_from=self.start_year,
+                                                      release_year_until=self.end_year)
             items_num = len(results["items"])
             for j in range(items_num):
                 title = results["items"][j]["title"]
@@ -42,7 +48,7 @@ class Recommend:
     def top_first(self):
         L = []
         choice_num = 5
-        movie_list = self.select_movies(choice_num,1)
+        movie_list = self.select_movies(choice_num, 1)
         if len(movie_list) <= choice_num:
             choice_num = len(movie_list)
         for k in range(choice_num):
@@ -52,7 +58,7 @@ class Recommend:
     def top_10(self):
         L = []
         choice_num = 20
-        movie_list = self.select_movies(choice_num,1)
+        movie_list = self.select_movies(choice_num, 1)
         output_num = 5
         if len(movie_list) <= 5:
             output_num = len(movie_list)
@@ -61,11 +67,10 @@ class Recommend:
             L.append(movie_list[k])
         return L
 
-
     def top_100(self):
         L = []
         choice_num = 100
-        movie_list = self.select_movies(choice_num,4) #1ページにつき30の作品があることがわかってるので4*30 > 100
+        movie_list = self.select_movies(choice_num, 4)  # 1ページにつき30の作品があることがわかってるので4*30 > 100
         output_num = 5
         if len(movie_list) <= output_num:
             output_num = len(movie_list)
@@ -74,14 +79,14 @@ class Recommend:
             L.append(movie_list[k])
         return L
 
-
-
     def recommend(self):
         L = []
         choice_num = 5
         # ページの番号をランダムで取得して,そのページからとってくる(forのネスト回避)
-        i = random.randint(0,self.page_num)
-        results2 = self.just_watch.search_for_item(content_types=[self.content_type],providers=[self.provider],genres=[self.genre],scoring_filter_types=self.score,page=i,release_year_from=self.start_year,release_year_until=self.end_year)
+        i = random.randint(0, self.page_num)
+        results2 = self.just_watch.search_for_item(content_types=[self.content_type], providers=[self.provider],
+                                                   genres=[self.genre], scoring_filter_types=self.score, page=i,
+                                                   release_year_from=self.start_year, release_year_until=self.end_year)
         items_num = len(results2["items"])
         if items_num <= choice_num:
             choice_num = items_num
@@ -92,7 +97,7 @@ class Recommend:
                 L.append(title)
         return L
 
-    def info(self,choice_num):
+    def info(self, choice_num):
         url = ""
         watch_info = list()
         if choice_num == 0:
@@ -107,7 +112,7 @@ class Recommend:
         count = 0
         for title_name in title_list:
             # recommendメソッドで作った作品名で検索して出てきたurlを保持
-            title_info = self.just_watch.search_for_item(query=str(title_name),page=0)
+            title_info = self.just_watch.search_for_item(query=str(title_name), page=0)
 
             movie_info = title_info["items"][0]["offers"]
             for j in range(len(movie_info)):
@@ -120,12 +125,13 @@ class Recommend:
             # 評価を取得
             # なぜだかわからないが順番が毎回バラバラ(多分シーズン毎の評価だと思われる)
 
-            value_list  = title_info["items"][0]["scoring"]
+            value_list = title_info["items"][0]["scoring"]
             for j in range(len(value_list)):
                 value_site = value_list[j]["provider_type"]
                 value_num = value_list[j]["value"]
                 if value_site == "imdb:score":
-                    watch_info.append({"title":title_name,"url":url,"value":value_num,"content_type":self.content_type})
+                    watch_info.append(
+                        {"title": title_name, "url": url, "value": value_num, "content_type": self.content_type})
                     break
 
         return watch_info
@@ -165,7 +171,7 @@ class TMDB:
         description = res["results"][0]["overview"]
         if len(description) >= 100:
             description = description[:100]
-            description+="..."
+            description += "..."
         elif description == "":
             description = "概要なし"
         return description
