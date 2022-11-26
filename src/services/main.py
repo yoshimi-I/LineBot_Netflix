@@ -18,7 +18,10 @@ from linebot.models import (
 def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
     # firebaseを扱うためにインスタンス化を行う
     firebase = FirebaseCRUD()
-    ques_num = firebase.read_document("ques_id", user_id)
+    try:
+        ques_num = firebase.read_document("ques_id", user_id)
+    except:
+        ques_num = 0
 
     if text == "探す" or text == "初めからやり直す":
         try:
@@ -81,7 +84,7 @@ def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
                 return
 
             # ここでDBの値を更新
-            firebase.update_document(["providers","ques_id"],[providers,2],user_id)
+            firebase.update_document(["providers", "ques_id"], [providers, 2], user_id)
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='動画の種類を選んでください',
@@ -288,7 +291,7 @@ def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
                 return
 
             # ここでDBの値を更新
-            firebase.update_document(["start_year","end_year","ques_id"],[start_year,end_year,5],user_id)
+            firebase.update_document(["start_year", "end_year", "ques_id"], [start_year, end_year, 5], user_id)
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='動画の評価を選んでください',
@@ -340,7 +343,7 @@ def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
                 return
 
             # ここでDBに格納
-            firebase.update_document(["choice_num","ques_id"], [choice_num,6], user_id)
+            firebase.update_document(["choice_num", "ques_id"], [choice_num, 6], user_id)
 
             line_bot_api.reply_message(
                 event.reply_token,
