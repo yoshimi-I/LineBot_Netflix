@@ -49,16 +49,25 @@
    4. 2020~現在
 
 ## デモ動画
+### ver1.0
 https://user-images.githubusercontent.com/89241539/202896092-c15d7043-9001-4de9-8f76-16f55e8409fa.mp4
 
-## バージョン変更
+### ver4.0
+https://user-images.githubusercontent.com/89241539/203808209-f305903e-13e6-42a3-aafc-f385209c6c78.mp4
+
+
+## アップデート履歴
 - ver1.0 
-  - ランキングによる評価の実装(top3,top,10)
+  - リリース  
 - ver2.0
+  - ランキングによる評価の実装(top3,top,10)
+- ver3.0
   - 評価による絞り込みの削除(top3,top10,top100,なんでもいいの中から選択を行う)
   - 公開日による映画の絞り込みの追加
-- ver3.0
+- ver4.0
   - カードを3枚から5枚へ変更
   - 条件を変えずに再検索を行えるボタンを実装
-
+- ver5.0
+  - DBをTinyDBからcloudfirestoreに変更
+  - entity,dto,seevicesを作成してリファクタリング
    
