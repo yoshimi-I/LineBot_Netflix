@@ -67,7 +67,7 @@ https://user-images.githubusercontent.com/89241539/203808209-f305903e-13e6-42a3-
 - ver4.0
   - カードを3枚から5枚へ変更
   - 条件を変えずに再検索を行えるボタンを実装
-- ver4.0
+- ver5.0
   - DBをTinyDBからcloudfirestoreに変更
-  - entity,Dao,seevicesを作成してリファクタリング
+  - entity,dto,seevicesを作成してリファクタリング
    
