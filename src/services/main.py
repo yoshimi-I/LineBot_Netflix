@@ -1,6 +1,6 @@
 from justwatch import JustWatch
 from src.api.Movie_api import Recommend, TMDB
-from src.db.firebase import FirebaseCRUD
+from src.repository.firebase import FirebaseCRUD
 from src.dto.user_items_dto import UserItemsDTO
 from src.entity.entity import UserItemsEntity
 
@@ -26,6 +26,7 @@ def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
     if text == "探す" or text == "初めからやり直す":
         try:
             # まずは最初にDBのテーブルを作成
+            # dtoを用いることで引数にとったものをそのままjson形式にして,DBへと格納する形に変形する
             user_items = UserItemsDTO(user_id, "null", "null", "null", 0, 0, 9999, 1)
             firebase.create_document(user_items)
 
@@ -391,7 +392,11 @@ def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
 
             # インスタンス化を行う(APIとEntity)
             just_watch = JustWatch(country='JP')
+
+            # db_itemsに辞書型で保持する
             db_items = firebase.read_all_document(user_id)
+
+            # entityを用いることで辞書型だったものをメンバ変数のようにして取り出している
             user_items = UserItemsEntity(db_items)
 
             # DBからとってきた値を格納
