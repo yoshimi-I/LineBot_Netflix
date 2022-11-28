@@ -46,7 +46,7 @@ def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
         except:
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='実行に失敗しました,お手数ですがもう一度お願いします',
+                TextSendMessage(text='実行に失敗しました、お手数ですがもう一度お願いします',
                                 quick_reply=QuickReply(items=[
                                     QuickReplyButton(action=MessageAction(label="初めからやり直す", text="初めからやり直す")),
                                 ])
@@ -97,7 +97,7 @@ def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
         except:
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='実行に失敗しました,お手数ですがもう一度お願いします',
+                TextSendMessage(text='実行に失敗しました、お手数ですがもう一度お願いします',
                                 quick_reply=QuickReply(items=[
                                     QuickReplyButton(
                                         action=MessageAction(label="Amazon prime video", text="Amazon prime video")),
@@ -155,7 +155,7 @@ def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
         except:
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='実行に失敗しました,お手数ですがもう一度お願いします',
+                TextSendMessage(text='実行に失敗しました、お手数ですがもう一度お願いします',
                                 quick_reply=QuickReply(items=[
                                     QuickReplyButton(action=MessageAction(label="映画", text="映画")),
                                     QuickReplyButton(action=MessageAction(label="アニメ,ドラマ", text="アニメ,ドラマ")),
@@ -237,7 +237,7 @@ def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
         except:
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='実行に失敗しました,お手数ですがもう一度お願いします',
+                TextSendMessage(text='実行に失敗しました、お手数ですがもう一度お願いします',
                                 quick_reply=QuickReply(items=[
                                     QuickReplyButton(action=MessageAction(label="アクション", text="アクション")),
                                     QuickReplyButton(action=MessageAction(label="アニメーション", text="アニメーション")),
@@ -306,7 +306,7 @@ def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
         except:
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='実行に失敗しました,お手数ですがもう一度お願いします',
+                TextSendMessage(text='実行に失敗しました、お手数ですがもう一度お願いします',
                                 quick_reply=QuickReply(items=[
                                     QuickReplyButton(action=MessageAction(label="~2000", text="~2000")),
                                     QuickReplyButton(action=MessageAction(label="2000~2010", text="2000~2010")),
@@ -357,7 +357,7 @@ def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
         except:
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='実行に失敗しました,お手数ですがもう一度お願いします',
+                TextSendMessage(text='実行に失敗しました、お手数ですがもう一度お願いします',
                                 quick_reply=QuickReply(items=[
                                     QuickReplyButton(action=MessageAction(label="~2000", text="~2000")),
                                     QuickReplyButton(action=MessageAction(label="2000~2010", text="2000~2010")),
@@ -405,7 +405,7 @@ def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
             # APIを叩く処理
             rec = Recommend(just_watch, content_type, providers, genre, 0, start_year, end_year)
             a = rec.info(choice_num)
-            print(just_watch, content_type, providers, genre, 0, start_year, end_year)
+
             # 受け取った値の数で条件分岐
             if len(a) == 0:
                 line_bot_api.reply_message(
@@ -448,6 +448,7 @@ def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
                 res_body["footer"]["contents"][0]["action"]["uri"] = movie_info["url"]
 
             # とりあえずレスポンス
+            print(just_watch, content_type, providers, genre, 0, start_year, end_year)
 
             line_bot_api.reply_message(
                 event.reply_token,
@@ -468,7 +469,7 @@ def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
         except:
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='実行に失敗しました,お手数ですがもう一度お願いします',
+                TextSendMessage(text='実行に失敗しました、お手数ですがもう一度お願いします',
                                 quick_reply=QuickReply(items=[
                                     QuickReplyButton(action=MessageAction(label="初めからやり直す", text="初めからやり直す")),
                                     QuickReplyButton(action=MessageAction(label="再実行", text="再実行"))
@@ -479,5 +480,5 @@ def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
     else:
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage("「探す」と入力することで映画の検索を開始します")
+            TextSendMessage(text="「探す」と入力することで映画の検索を開始します")
         )
