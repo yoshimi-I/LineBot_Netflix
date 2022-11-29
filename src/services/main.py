@@ -4,11 +4,11 @@ from src.repository.firebase import FirebaseCRUD
 from src.dto.user_items_dto import UserItemsDTO
 from src.entity.entity import UserItemsEntity
 
-from src.responce_format.res_1 import res_1_format
-from src.responce_format.res_2 import res_2_format
-from src.responce_format.res_3 import res_3_format
-from src.responce_format.res_4 import res_4_format
-from src.responce_format.res_5 import res_5_format
+from src.response_format.res_1 import res_1_format
+from src.response_format.res_2 import res_2_format
+from src.response_format.res_3 import res_3_format
+from src.response_format.res_4 import res_4_format
+from src.response_format.res_5 import res_5_format
 
 from linebot.models import (
     TextSendMessage, QuickReply, QuickReplyButton, MessageAction, FlexSendMessage
