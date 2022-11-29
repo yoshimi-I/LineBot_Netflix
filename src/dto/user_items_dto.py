@@ -12,7 +12,7 @@ class UserItemsDTO:
     end_year: int
     ques_id: int
 
-    def set(self):
+    def format_json(self):
         return {
             'id': self.id,
             'content_type': self.content_type,
