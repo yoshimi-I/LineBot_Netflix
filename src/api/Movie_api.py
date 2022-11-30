@@ -4,9 +4,13 @@ import time
 import requests
 import json
 
+from justwatch import JustWatch
+from typing import List, Dict, Union
+
 
 class Recommend:
-    def __init__(self, just_watch, content_type, provider, genre, score, start_year, end_year):
+    def __init__(self, just_watch: JustWatch, content_type: str, provider: str, genre: str, score: int, start_year: int,
+                 end_year: int):
         self.just_watch = just_watch
         self.content_type = content_type
         self.provider = provider
@@ -27,7 +31,7 @@ class Recommend:
         self.page_num = self.results["total_pages"]
         self.items = self.results["items"]
 
-    def select_movies(self, num, page_num):
+    def select_movies(self, num: int, page_num: int) -> List[str]:
         L = []
         movie_list = []
         total_page = page_num
@@ -45,7 +49,7 @@ class Recommend:
                     break
         return movie_list
 
-    def top_first(self):
+    def top_first(self) -> list:
         L = []
         choice_num = 5
         movie_list = self.select_movies(choice_num, 1)
@@ -55,7 +59,7 @@ class Recommend:
             L.append(movie_list[k])
         return L
 
-    def top_10(self):
+    def top_10(self) -> List[Union[str, List[str]]]:
         L = []
         choice_num = 20
         movie_list = self.select_movies(choice_num, 1)
@@ -67,7 +71,7 @@ class Recommend:
             L.append(movie_list[k])
         return L
 
-    def top_100(self):
+    def top_100(self) -> List[Union[str, List[str]]]:
         L = []
         choice_num = 100
         movie_list = self.select_movies(choice_num, 4)  # 1ページにつき30の作品があることがわかってるので4*30 > 100
@@ -79,7 +83,7 @@ class Recommend:
             L.append(movie_list[k])
         return L
 
-    def recommend(self):
+    def recommend(self) -> List[Union[str, List[str]]]:
         L = []
         choice_num = 5
         # ページの番号をランダムで取得して,そのページからとってくる(forのネスト回避)
@@ -97,7 +101,7 @@ class Recommend:
                 L.append(title)
         return L
 
-    def info(self, choice_num):
+    def info(self, choice_num: int) -> List[Dict[str, str]]:
         url = ""
         watch_info = list()
         if choice_num == 0:
@@ -138,7 +142,7 @@ class Recommend:
 
 
 class TMDB:
-    def __init__(self, token, info):
+    def __init__(self, token: str, info: dict):
         self.token = token
         self.headers_ = {'Authorization': f'Bearer {self.token}', 'Content-Type': 'application/json;charset=utf-8'}
         self.base_url_ = 'https://api.themoviedb.org/3/'
@@ -149,11 +153,11 @@ class TMDB:
         self.value = info["value"]
         self.url = info["url"]
 
-    def _json_by_get_request(self, url, params={}):
+    def _json_by_get_request(self, url: str, params: dict) -> dict:
         res = requests.get(url, headers=self.headers_, params=params)
         return json.loads(res.text)
 
-    def search_movies_posters(self, query):
+    def search_movies_posters(self, query: str) -> str:
         params = {'query': query, "language": self.language}
         url = f'{self.base_url_}search/movie'
         res = self._json_by_get_request(url, params)
@@ -164,7 +168,7 @@ class TMDB:
             url = "https://generative-placeholders.glitch.me/image?width=600&height=300&style=cellular-automata&cells=10 "
         return url
 
-    def search_movies_description(self, query):
+    def search_movies_description(self, query: str) -> str:
         params = {'query': query, "language": self.language}
         url = f'{self.base_url_}search/movie'
         res = self._json_by_get_request(url, params)
@@ -176,7 +180,7 @@ class TMDB:
             description = "概要なし"
         return description
 
-    def movies_info(self):
+    def movies_info(self) -> Dict[str, str]:
         real_value = str(round(self.value / 2, 1))
         img_url = self.search_movies_posters(self.title)
         movie_outline = self.search_movies_description(self.title)
@@ -184,7 +188,7 @@ class TMDB:
              'movie_outline': movie_outline}
         return L
 
-    def search_shows_posters(self, query):
+    def search_shows_posters(self, query: str) -> str:
         params = {'query': query, "language": self.language}
         url = f'{self.base_url_}search/tv'
         res = self._json_by_get_request(url, params)
@@ -195,7 +199,7 @@ class TMDB:
             url = "https://generative-placeholders.glitch.me/image?width=600&height=300&style=cellular-automata&cells=10"
         return url
 
-    def search_shows_description(self, query):
+    def search_shows_description(self, query: str) -> str:
         params = {'query': query, "language": self.language}
         url = f'{self.base_url_}search/tv'
         res = self._json_by_get_request(url, params)
@@ -207,7 +211,7 @@ class TMDB:
             description = "概要なし"
         return description
 
-    def shows_info(self):
+    def shows_info(self) -> Dict[str, str]:
         real_value = str(round(self.value / 2, 1))
         img_url = self.search_shows_posters(self.title)
         movie_outline = self.search_shows_description(self.title)
@@ -215,7 +219,7 @@ class TMDB:
              'movie_outline': movie_outline}
         return L
 
-    def info(self):
+    def info(self) -> Dict[str, str]:
         if self.content_type == "movie":
             return self.movies_info()
         else:

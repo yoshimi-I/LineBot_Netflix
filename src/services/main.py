@@ -3,6 +3,7 @@ from src.api.Movie_api import Recommend, TMDB
 from src.repository.firebase import FirebaseCRUD
 from src.dto.user_items_dto import UserItemsDTO
 from src.entity.entity import UserItemsEntity
+from typing import Dict, List, Tuple
 
 from src.response_format.res_1 import res_1_format
 from src.response_format.res_2 import res_2_format
@@ -15,11 +16,11 @@ from linebot.models import (
 )
 
 
-def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
+def handle_main_func(event: str, text: str, user_id: str, API_TOKEN: str, line_bot_api: str):
     # firebaseを扱うためにインスタンス化を行う
     firebase = FirebaseCRUD()
     try:
-        ques_num = firebase.read_document("ques_id", user_id)
+        ques_num: int = firebase.read_document("ques_id", user_id)
     except:
         ques_num = 0
 
@@ -57,7 +58,7 @@ def handle_main_func(event, text, user_id, API_TOKEN, line_bot_api):
 
     elif ques_num == 1:
         try:
-            mes = event.message.text
+            mes: str = event.message.text
             if mes == "Amazon prime video":
                 providers = "amp"
             elif mes == "Netflix":
