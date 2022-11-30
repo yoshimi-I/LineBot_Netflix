@@ -5,6 +5,7 @@ import requests
 import json
 
 from justwatch import JustWatch
+from typing import List, Dict, Union
 
 
 class Recommend:
@@ -30,7 +31,7 @@ class Recommend:
         self.page_num = self.results["total_pages"]
         self.items = self.results["items"]
 
-    def select_movies(self, num: int, page_num: int) -> list:
+    def select_movies(self, num: int, page_num: int) -> List[str]:
         L = []
         movie_list = []
         total_page = page_num
@@ -58,7 +59,7 @@ class Recommend:
             L.append(movie_list[k])
         return L
 
-    def top_10(self) -> list:
+    def top_10(self) -> List[Union[str, List[str]]]:
         L = []
         choice_num = 20
         movie_list = self.select_movies(choice_num, 1)
@@ -70,7 +71,7 @@ class Recommend:
             L.append(movie_list[k])
         return L
 
-    def top_100(self) -> list:
+    def top_100(self) -> List[Union[str, List[str]]]:
         L = []
         choice_num = 100
         movie_list = self.select_movies(choice_num, 4)  # 1ページにつき30の作品があることがわかってるので4*30 > 100
@@ -82,7 +83,7 @@ class Recommend:
             L.append(movie_list[k])
         return L
 
-    def recommend(self) -> list:
+    def recommend(self) -> List[Union[str, List[str]]]:
         L = []
         choice_num = 5
         # ページの番号をランダムで取得して,そのページからとってくる(forのネスト回避)
@@ -100,7 +101,7 @@ class Recommend:
                 L.append(title)
         return L
 
-    def info(self, choice_num: int) -> list:
+    def info(self, choice_num: int) -> List[Dict[str, str]]:
         url = ""
         watch_info = list()
         if choice_num == 0:
@@ -179,7 +180,7 @@ class TMDB:
             description = "概要なし"
         return description
 
-    def movies_info(self) -> dict:
+    def movies_info(self) -> Dict[str, str]:
         real_value = str(round(self.value / 2, 1))
         img_url = self.search_movies_posters(self.title)
         movie_outline = self.search_movies_description(self.title)
@@ -210,7 +211,7 @@ class TMDB:
             description = "概要なし"
         return description
 
-    def shows_info(self) -> dict:
+    def shows_info(self) -> Dict[str, str]:
         real_value = str(round(self.value / 2, 1))
         img_url = self.search_shows_posters(self.title)
         movie_outline = self.search_shows_description(self.title)
@@ -218,7 +219,7 @@ class TMDB:
              'movie_outline': movie_outline}
         return L
 
-    def info(self) -> dict:
+    def info(self) -> Dict[str, str]:
         if self.content_type == "movie":
             return self.movies_info()
         else:

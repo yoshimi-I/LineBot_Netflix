@@ -22,7 +22,7 @@ class FirebaseCRUD:
         doc = db.collection('user_info').document(user_id)
         return doc.get().to_dict()[field]
 
-    def read_all_document(self, user_id: str) -> dict:
+    def read_all_document(self, user_id: str) -> Dict:
         doc = db.collection('user_info').document(user_id)
         return doc.get().to_dict()
 
