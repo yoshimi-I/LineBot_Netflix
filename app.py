@@ -27,7 +27,7 @@ line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 
 
 
-main_func = MainFuncImpl()
+
 @app.route("/callback", methods=['POST'])
 def callback():
     # get X-Line-Signature header value
@@ -45,7 +45,7 @@ def callback():
         abort(400)
 
     return 'OK'
-
+main_func = MainFuncImpl()
 @handler.add(MessageEvent, message=TextMessage)
 # ここから実装開始
 def handle_message(event: MessageEvent):
