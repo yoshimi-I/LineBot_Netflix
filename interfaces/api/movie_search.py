@@ -1,12 +1,13 @@
 import random
-import time
+from typing import List, Union, Dict
 
-import requests
-import json
+from justwatch import JustWatch
+
+from usecase.api.movie_search_interface import MovieSearch
 
 
-class Recommend:
-    def __init__(self, just_watch, content_type, provider, genre, score, start_year, end_year):
+class MovieSearchImpl(MovieSearch):
+    def __init__(self, just_watch: JustWatch, content_type: str, provider: str, genre: str, score: int, start_year: int,end_year: int):
         self.just_watch = just_watch
         self.content_type = content_type
         self.provider = provider
@@ -27,7 +28,7 @@ class Recommend:
         self.page_num = self.results["total_pages"]
         self.items = self.results["items"]
 
-    def select_movies(self, num, page_num):
+    def select_videos(self, num: int, page_num: int) -> List[str]:
         L = []
         movie_list = []
         total_page = page_num
@@ -44,21 +45,20 @@ class Recommend:
                 if len(movie_list) >= num:
                     break
         return movie_list
-
-    def top_first(self):
+    def top_5_videos(self) -> List[Union[str, List[str]]]:
         L = []
         choice_num = 5
-        movie_list = self.select_movies(choice_num, 1)
+        movie_list = self.select_videos(choice_num, 1)
         if len(movie_list) <= choice_num:
             choice_num = len(movie_list)
         for k in range(choice_num):
             L.append(movie_list[k])
         return L
 
-    def top_10(self):
+    def top_10_videos(self) -> List[Union[str, List[str]]]:
         L = []
         choice_num = 20
-        movie_list = self.select_movies(choice_num, 1)
+        movie_list = self.select_videos(choice_num, 1)
         output_num = 5
         if len(movie_list) <= 5:
             output_num = len(movie_list)
@@ -66,11 +66,10 @@ class Recommend:
         for k in num:
             L.append(movie_list[k])
         return L
-
-    def top_100(self):
+    def top_100_videos(self) -> List[Union[str, List[str]]]:
         L = []
         choice_num = 100
-        movie_list = self.select_movies(choice_num, 4)  # 1ページにつき30の作品があることがわかってるので4*30 > 100
+        movie_list = self.select_videos(choice_num, 4)  # 1ページにつき30の作品があることがわかってるので4*30 > 100
         output_num = 5
         if len(movie_list) <= output_num:
             output_num = len(movie_list)
@@ -79,7 +78,7 @@ class Recommend:
             L.append(movie_list[k])
         return L
 
-    def recommend(self):
+    def other_videos(self) -> List[Union[str, List[str]]]:
         L = []
         choice_num = 5
         # ページの番号をランダムで取得して,そのページからとってくる(forのネスト回避)
@@ -97,17 +96,17 @@ class Recommend:
                 L.append(title)
         return L
 
-    def info(self, choice_num):
+    def videos_info(self,choice_num: int) -> List[Dict[str, str]]:
         url = ""
         watch_info = list()
         if choice_num == 0:
-            title_list = self.top_first()
+            title_list = self.top_5_videos()
         elif choice_num == 1:
-            title_list = self.top_10()
+            title_list = self.top_10_videos()
         elif choice_num == 2:
-            title_list = self.top_100()
+            title_list = self.top_100_videos()
         else:
-            title_list = self.recommend()
+            title_list = self.other_videos()
         title_num = len(title_list)
         count = 0
         for title_name in title_list:
@@ -136,87 +135,3 @@ class Recommend:
 
         return watch_info
 
-
-class TMDB:
-    def __init__(self, token, info):
-        self.token = token
-        self.headers_ = {'Authorization': f'Bearer {self.token}', 'Content-Type': 'application/json;charset=utf-8'}
-        self.base_url_ = 'https://api.themoviedb.org/3/'
-        self.img_base_url_ = 'https://image.tmdb.org/t/p/w500'
-        self.language = 'ja-JA'
-        self.title = info["title"]
-        self.content_type = info["content_type"]
-        self.value = info["value"]
-        self.url = info["url"]
-
-    def _json_by_get_request(self, url, params={}):
-        res = requests.get(url, headers=self.headers_, params=params)
-        return json.loads(res.text)
-
-    def search_movies_posters(self, query):
-        params = {'query': query, "language": self.language}
-        url = f'{self.base_url_}search/movie'
-        res = self._json_by_get_request(url, params)
-        try:
-            poster_path = res["results"][0]["poster_path"]
-            url = self.img_base_url_ + poster_path
-        except:
-            url = "https://generative-placeholders.glitch.me/image?width=600&height=300&style=cellular-automata&cells=10 "
-        return url
-
-    def search_movies_description(self, query):
-        params = {'query': query, "language": self.language}
-        url = f'{self.base_url_}search/movie'
-        res = self._json_by_get_request(url, params)
-        description = res["results"][0]["overview"]
-        if len(description) >= 100:
-            description = description[:100]
-            description += "..."
-        elif description == "":
-            description = "概要なし"
-        return description
-
-    def movies_info(self):
-        real_value = str(round(self.value / 2, 1))
-        img_url = self.search_movies_posters(self.title)
-        movie_outline = self.search_movies_description(self.title)
-        L = {'title': self.title, 'url': self.url, 'value': real_value, 'img_url': img_url,
-             'movie_outline': movie_outline}
-        return L
-
-    def search_shows_posters(self, query):
-        params = {'query': query, "language": self.language}
-        url = f'{self.base_url_}search/tv'
-        res = self._json_by_get_request(url, params)
-        try:
-            poster_path = res["results"][0]["poster_path"]
-            url = self.img_base_url_ + poster_path
-        except:
-            url = "https://generative-placeholders.glitch.me/image?width=600&height=300&style=cellular-automata&cells=10"
-        return url
-
-    def search_shows_description(self, query):
-        params = {'query': query, "language": self.language}
-        url = f'{self.base_url_}search/tv'
-        res = self._json_by_get_request(url, params)
-        description = res["results"][0]["overview"]
-        if len(description) >= 100:
-            description = description[:100]
-            description += "..."
-        elif description == "":
-            description = "概要なし"
-        return description
-
-    def shows_info(self):
-        real_value = str(round(self.value / 2, 1))
-        img_url = self.search_shows_posters(self.title)
-        movie_outline = self.search_shows_description(self.title)
-        L = {'title': self.title, 'url': self.url, 'value': real_value, 'img_url': img_url,
-             'movie_outline': movie_outline}
-        return L
-
-    def info(self):
-        if self.content_type == "movie":
-            return self.movies_info()
-        else:
-            return self.shows_info()
