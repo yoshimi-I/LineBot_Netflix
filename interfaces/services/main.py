@@ -2,12 +2,11 @@ from justwatch import JustWatch
 from linebot import LineBotApi
 from linebot.models import TextSendMessage, QuickReply, QuickReplyButton, MessageAction, FlexSendMessage
 
-from app import line_bot_api
 from domain.model.user_model import UserItems
 from infrastructure.firebase.repository.user_repository import UserRepositoryImpl
 from interfaces.api.get_img import GetImgImpl
 from interfaces.api.movie_search import MovieSearchImpl
-from src.entity.entity import UserItemsEntity
+from usecase.dto.user_items_dto import UserItemsDto
 from usecase.response.res_1 import res_1_format
 from usecase.response.res_2 import res_2_format
 from usecase.response.res_3 import res_3_format
@@ -17,30 +16,24 @@ from usecase.services.main import MainFunc
 
 
 class MainFuncImpl(MainFunc):
-    def __init__(self,event: str, text: str, user_id: str, api_token: str, line_bot_api: LineBotApi):
-        # DBのCRUD処理をまとめたclassをinfrastructureから呼び出す
-        self.firebase = UserRepositoryImpl()
-        self.event = event
-        self.text = text
-        self.user_id = user_id
-        self.api_token = api_token
-        self.line_bot_api = line_bot_api
 
-    def handle_main_func(self):
+    def handle_main_func(self,event: str, text: str, user_id: str, API_TOKEN: str, line_bot_api: LineBotApi):
+        # firebaseを扱うためにインスタンス化を行う
+        firebase = UserRepositoryImpl()
         try:
-            ques_num: int = self.firebase.read_document_question_num("ques_id", self.user_id)
+            ques_num: int = firebase.read_document_question_num("ques_id", user_id)
         except:
             ques_num = 0
-        if self.text == "探す" or self.text == "初めからやり直す":
+
+        if text == "探す" or text == "初めからやり直す":
             try:
                 # まずは最初にDBのテーブルを作成
-                # 引数にとったものをそのままjson形式にして,DBへと格納する形に変形する
-                user_items = UserItems(self.user_id, "null", "null", "null", 0, 0, 9999, 1)
-                self.firebase.create_document(user_items)
+                user_items = UserItems(user_id, "null", "null", "null", 0, 0, 9999, 1)
+                firebase.create_document(user_items)
 
                 # 返却する言葉を実装
                 line_bot_api.reply_message(
-                    self.event.reply_token,
+                    event.reply_token,
                     TextSendMessage(text='動画の視聴方法を選んでください',
                                     quick_reply=QuickReply(items=[
                                         QuickReplyButton(
@@ -55,7 +48,7 @@ class MainFuncImpl(MainFunc):
                 )
             except:
                 line_bot_api.reply_message(
-                    self.event.reply_token,
+                    event.reply_token,
                     TextSendMessage(text='実行に失敗しました、お手数ですがもう一度お願いします',
                                     quick_reply=QuickReply(items=[
                                         QuickReplyButton(action=MessageAction(label="初めからやり直す", text="初めからやり直す")),
@@ -66,7 +59,7 @@ class MainFuncImpl(MainFunc):
 
         elif ques_num == 1:
             try:
-                mes: str = self.event.message.text
+                mes: str = event.message.text
                 if mes == "Amazon prime video":
                     providers = "amp"
                 elif mes == "Netflix":
@@ -79,7 +72,7 @@ class MainFuncImpl(MainFunc):
                     providers = "dnp"
                 else:
                     line_bot_api.reply_message(
-                        self.event.reply_token,
+                        event.reply_token,
                         TextSendMessage(text='選択肢の中から選んでください',
                                         quick_reply=QuickReply(items=[
                                             QuickReplyButton(action=MessageAction(label="Amazon prime video",
@@ -94,9 +87,9 @@ class MainFuncImpl(MainFunc):
                     return
 
                 # ここでDBの値を更新
-                self.firebase.update_document(self.user_id, ["providers", "ques_id"], [providers, 2])
+                firebase.update_document(["providers", "ques_id"], [providers, 2],user_id)
                 line_bot_api.reply_message(
-                    self.event.reply_token,
+                    event.reply_token,
                     TextSendMessage(text='動画の種類を選んでください',
                                     quick_reply=QuickReply(items=[
                                         QuickReplyButton(action=MessageAction(label="映画", text="映画")),
@@ -106,7 +99,7 @@ class MainFuncImpl(MainFunc):
                 )
             except:
                 line_bot_api.reply_message(
-                    self.event.reply_token,
+                    event.reply_token,
                     TextSendMessage(text='実行に失敗しました、お手数ですがもう一度お願いします',
                                     quick_reply=QuickReply(items=[
                                         QuickReplyButton(
@@ -122,7 +115,7 @@ class MainFuncImpl(MainFunc):
 
         elif ques_num == 2:
             try:
-                mes = self.event.message.text
+                mes = event.message.text
                 content_type = "null"
                 if mes == "映画":
                     content_type = "movie"
@@ -130,7 +123,7 @@ class MainFuncImpl(MainFunc):
                     content_type = "show"
                 else:
                     line_bot_api.reply_message(
-                        self.event.reply_token,
+                        event.reply_token,
                         TextSendMessage(text='選択肢の中から選んでください',
                                         quick_reply=QuickReply(items=[
                                             QuickReplyButton(action=MessageAction(label="映画", text="映画")),
@@ -141,9 +134,9 @@ class MainFuncImpl(MainFunc):
                     return
 
                 # ここでDBの値を更新
-                self.firebase.update_document(self.user_id,["content_type", "ques_id"], [content_type, 3])
+                firebase.update_document(["content_type", "ques_id"], [content_type, 3],user_id)
                 line_bot_api.reply_message(
-                    self.event.reply_token,
+                    event.reply_token,
                     TextSendMessage(text='動画のジャンルを選んでください(右にスクロールできます)',
                                     quick_reply=QuickReply(items=[
                                         QuickReplyButton(action=MessageAction(label="アクション", text="アクション")),
@@ -165,7 +158,7 @@ class MainFuncImpl(MainFunc):
                 )
             except:
                 line_bot_api.reply_message(
-                    self.event.reply_token,
+                    event.reply_token,
                     TextSendMessage(text='実行に失敗しました、お手数ですがもう一度お願いします',
                                     quick_reply=QuickReply(items=[
                                         QuickReplyButton(action=MessageAction(label="映画", text="映画")),
@@ -177,7 +170,7 @@ class MainFuncImpl(MainFunc):
         elif ques_num == 3:
             try:
                 # 受け取る値は1つまえの選択肢となる
-                mes = self.event.message.text
+                mes = event.message.text
 
                 # 以下受け取った値をもとにDBへ格納する文字列を決める
                 if mes == "アクション":
@@ -209,7 +202,7 @@ class MainFuncImpl(MainFunc):
 
                 else:
                     line_bot_api.reply_message(
-                        self.event.reply_token,
+                        event.reply_token,
                         TextSendMessage(text='選択肢の中から選んでください(右にスクロールできます)',
                                         quick_reply=QuickReply(items=[
                                             QuickReplyButton(action=MessageAction(label="アクション", text="アクション")),
@@ -232,9 +225,9 @@ class MainFuncImpl(MainFunc):
                     return
 
                 # ここでDBの値を更新
-                self.firebase.update_document(self.user_id,["genre", "ques_id"], [genre, 4])
+                firebase.update_document(["genre", "ques_id"], [genre, 4],user_id)
                 line_bot_api.reply_message(
-                    self.event.reply_token,
+                    event.reply_token,
                     TextSendMessage(text='動画の放送時期を選んでください',
                                     quick_reply=QuickReply(items=[
                                         QuickReplyButton(action=MessageAction(label="~2000", text="~2000")),
@@ -247,7 +240,7 @@ class MainFuncImpl(MainFunc):
                 )
             except:
                 line_bot_api.reply_message(
-                    self.event.reply_token,
+                    event.reply_token,
                     TextSendMessage(text='実行に失敗しました、お手数ですがもう一度お願いします',
                                     quick_reply=QuickReply(items=[
                                         QuickReplyButton(action=MessageAction(label="アクション", text="アクション")),
@@ -272,7 +265,7 @@ class MainFuncImpl(MainFunc):
             start_year = 0
             end_year = 9999
             try:
-                mes = self.event.message.text
+                mes = event.message.text
                 if mes == "~2000":
                     end_year = 2000
                 elif mes == "2000~2010":
@@ -288,7 +281,7 @@ class MainFuncImpl(MainFunc):
                     end_year = 9999
                 else:
                     line_bot_api.reply_message(
-                        self.event.reply_token,
+                        event.reply_token,
                         TextSendMessage(text='選択肢の中から選んでください',
                                         quick_reply=QuickReply(items=[
                                             QuickReplyButton(action=MessageAction(label="~2000", text="~2000")),
@@ -302,9 +295,9 @@ class MainFuncImpl(MainFunc):
                     return
 
                 # ここでDBの値を更新
-                self.firebase.update_document(self.user_id,["start_year", "end_year", "ques_id"], [start_year, end_year, 5])
+                firebase.update_document(["start_year", "end_year", "ques_id"], [start_year, end_year, 5],user_id)
                 line_bot_api.reply_message(
-                    self.event.reply_token,
+                    event.reply_token,
                     TextSendMessage(text='動画の評価を選んでください',
                                     quick_reply=QuickReply(items=[
                                         QuickReplyButton(action=MessageAction(label="Top5", text="Top5")),
@@ -316,7 +309,7 @@ class MainFuncImpl(MainFunc):
                 )
             except:
                 line_bot_api.reply_message(
-                    self.event.reply_token,
+                    event.reply_token,
                     TextSendMessage(text='実行に失敗しました、お手数ですがもう一度お願いします',
                                     quick_reply=QuickReply(items=[
                                         QuickReplyButton(action=MessageAction(label="~2000", text="~2000")),
@@ -330,7 +323,7 @@ class MainFuncImpl(MainFunc):
         elif ques_num == 5:
             choice_num = 0
             try:
-                mes = self.event.message.text
+                mes = event.message.text
                 if mes == "Top5":
                     choice_num = 0
                 elif mes == "Top20の中から":
@@ -341,7 +334,7 @@ class MainFuncImpl(MainFunc):
                     choice_num = 3
                 else:
                     line_bot_api.reply_message(
-                        self.event.reply_token,
+                        event.reply_token,
                         TextSendMessage(text='選択肢の中から選んでください',
                                         quick_reply=QuickReply(items=[
                                             QuickReplyButton(action=MessageAction(label="Top5", text="Top5")),
@@ -356,10 +349,10 @@ class MainFuncImpl(MainFunc):
                     return
 
                 # ここでDBに格納
-                self.firebase.update_document(self.user_id,["choice_num", "ques_id"], [choice_num, 6])
+                firebase.update_document(["choice_num", "ques_id"], [choice_num, 6],user_id)
 
                 line_bot_api.reply_message(
-                    self.event.reply_token,
+                    event.reply_token,
                     TextSendMessage(text='検索を開始してよろしいですか？(5秒から10秒ほどかかります)',
                                     quick_reply=QuickReply(items=[
                                         QuickReplyButton(action=MessageAction(label="大丈夫", text="大丈夫")),
@@ -369,7 +362,7 @@ class MainFuncImpl(MainFunc):
                 )
             except:
                 line_bot_api.reply_message(
-                    self.event.reply_token,
+                    event.reply_token,
                     TextSendMessage(text='実行に失敗しました、お手数ですがもう一度お願いします',
                                     quick_reply=QuickReply(items=[
                                         QuickReplyButton(action=MessageAction(label="~2000", text="~2000")),
@@ -386,12 +379,12 @@ class MainFuncImpl(MainFunc):
 
             # 以下にAPIを呼び出す処理を記載
             try:
-                mes = self.event.message.text
+                mes = event.message.text
                 if mes == "大丈夫" or mes == "再実行":
                     pass
                 else:
                     line_bot_api.reply_message(
-                        self.event.reply_token,
+                        event.reply_token,
                         TextSendMessage(text='選択肢の中から選んでください',
                                         quick_reply=QuickReply(items=[
                                             QuickReplyButton(action=MessageAction(label="大丈夫", text="大丈夫")),
@@ -407,10 +400,10 @@ class MainFuncImpl(MainFunc):
                 just_watch = JustWatch(country='JP')
 
                 # db_itemsに辞書型で保持する
-                db_items = self.firebase.read_document(self.user_id)
+                db_items = firebase.read_document(user_id)
 
                 # entityを用いることで辞書型だったものをメンバ変数のようにして取り出している
-                user_items = UserItemsEntity(db_items)
+                user_items = UserItemsDto(db_items)
 
                 # DBからとってきた値を格納
                 content_type = user_items.content_type
@@ -427,7 +420,7 @@ class MainFuncImpl(MainFunc):
                 # 受け取った値の数で条件分岐
                 if len(a) == 0:
                     line_bot_api.reply_message(
-                        self.event.reply_token,
+                        event.reply_token,
                         TextSendMessage(text='条件に一致する作品が見つかりませんでした',
                                         quick_reply=QuickReply(items=[
                                             QuickReplyButton(
@@ -447,7 +440,7 @@ class MainFuncImpl(MainFunc):
                     res = res_5_format
                 # 以下、jsonにとってきた値を代入していく
                 for i in range(len(a)):
-                    api = GetImgImpl(self.api_token, a[i])
+                    api = GetImgImpl(API_TOKEN, a[i])
                     movie_info = api.videos_info()
                     res_body = res["contents"][i]
 
@@ -470,7 +463,7 @@ class MainFuncImpl(MainFunc):
                 print(just_watch, content_type, providers, genre, 0, start_year, end_year)
 
                 line_bot_api.reply_message(
-                    self.event.reply_token,
+                    event.reply_token,
                     [
                         # ここで入力した条件をもとに検索結果を返す
                         FlexSendMessage(
@@ -487,7 +480,7 @@ class MainFuncImpl(MainFunc):
                 )
             except:
                 line_bot_api.reply_message(
-                    self.event.reply_token,
+                    event.reply_token,
                     TextSendMessage(text='実行に失敗しました、お手数ですがもう一度お願いします',
                                     quick_reply=QuickReply(items=[
                                         QuickReplyButton(action=MessageAction(label="初めからやり直す", text="初めからやり直す")),
@@ -498,8 +491,6 @@ class MainFuncImpl(MainFunc):
 
         else:
             line_bot_api.reply_message(
-                self.event.reply_token,
+                event.reply_token,
                 TextSendMessage(text="「探す」と入力することで映画の検索を開始します")
             )
-
-

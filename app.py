@@ -14,7 +14,6 @@ from linebot.models import (
 from tinydb import TinyDB, Query
 
 from interfaces.services.main import MainFuncImpl
-from src.services.main import handle_main_func
 
 app = Flask(__name__)
 
@@ -28,7 +27,7 @@ line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 
 
 
-
+main_func = MainFuncImpl()
 @app.route("/callback", methods=['POST'])
 def callback():
     # get X-Line-Signature header value
@@ -52,7 +51,7 @@ def callback():
 def handle_message(event: MessageEvent):
     text = event.message.text
     user_id = event.source.user_id
-    main_func = MainFuncImpl(event,text,user_id,API_TOKEN,line_bot_api)
-    main_func.handle_main_func()
+
+    main_func.handle_main_func(event,text,user_id,API_TOKEN,line_bot_api)
 if __name__ == "__main__":
     app.run()
