@@ -16,12 +16,13 @@ from usecase.services.main import MainFunc
 
 
 class MainFuncImpl(MainFunc):
+    def __init__(self):
+        self.firebase = UserRepositoryImpl()
 
     def handle_main_func(self,event: str, text: str, user_id: str, API_TOKEN: str, line_bot_api: LineBotApi):
         # firebaseを扱うためにインスタンス化を行う
-        firebase = UserRepositoryImpl()
         try:
-            ques_num: int = firebase.read_document_question_num("ques_id", user_id)
+            ques_num: int = self.firebase.read_document_question_num("ques_id", user_id)
         except:
             ques_num = 0
 
@@ -29,7 +30,7 @@ class MainFuncImpl(MainFunc):
             try:
                 # まずは最初にDBのテーブルを作成
                 user_items = UserItems(user_id, "null", "null", "null", 0, 0, 9999, 1)
-                firebase.create_document(user_items)
+                self.firebase.create_document(user_items)
 
                 # 返却する言葉を実装
                 line_bot_api.reply_message(
@@ -87,7 +88,7 @@ class MainFuncImpl(MainFunc):
                     return
 
                 # ここでDBの値を更新
-                firebase.update_document(["providers", "ques_id"], [providers, 2],user_id)
+                self.firebase.update_document(["providers", "ques_id"], [providers, 2],user_id)
                 line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='動画の種類を選んでください',
@@ -134,7 +135,7 @@ class MainFuncImpl(MainFunc):
                     return
 
                 # ここでDBの値を更新
-                firebase.update_document(["content_type", "ques_id"], [content_type, 3],user_id)
+                self.firebase.update_document(["content_type", "ques_id"], [content_type, 3],user_id)
                 line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='動画のジャンルを選んでください(右にスクロールできます)',
@@ -225,7 +226,7 @@ class MainFuncImpl(MainFunc):
                     return
 
                 # ここでDBの値を更新
-                firebase.update_document(["genre", "ques_id"], [genre, 4],user_id)
+                self.firebase.update_document(["genre", "ques_id"], [genre, 4],user_id)
                 line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='動画の放送時期を選んでください',
@@ -295,7 +296,7 @@ class MainFuncImpl(MainFunc):
                     return
 
                 # ここでDBの値を更新
-                firebase.update_document(["start_year", "end_year", "ques_id"], [start_year, end_year, 5],user_id)
+                self.firebase.update_document(["start_year", "end_year", "ques_id"], [start_year, end_year, 5],user_id)
                 line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='動画の評価を選んでください',
@@ -349,7 +350,7 @@ class MainFuncImpl(MainFunc):
                     return
 
                 # ここでDBに格納
-                firebase.update_document(["choice_num", "ques_id"], [choice_num, 6],user_id)
+                self.firebase.update_document(["choice_num", "ques_id"], [choice_num, 6],user_id)
 
                 line_bot_api.reply_message(
                     event.reply_token,
@@ -400,7 +401,7 @@ class MainFuncImpl(MainFunc):
                 just_watch = JustWatch(country='JP')
 
                 # db_itemsに辞書型で保持する
-                db_items = firebase.read_document(user_id)
+                db_items = self.firebase.read_document(user_id)
 
                 # entityを用いることで辞書型だったものをメンバ変数のようにして取り出している
                 user_items = UserItemsDto(db_items)
