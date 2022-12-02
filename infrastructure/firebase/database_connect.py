@@ -6,7 +6,8 @@ from typing import Dict, List, Tuple
 
 # firebaseの設定ファイルの読み込み
 class FirebaseConnect:
-    def __init__(self):
+    def connect(self):
         cred = credentials.Certificate("firebase-admin.json")
         firebase_admin.initialize_app(cred)
         db = firestore.client()
+        return db

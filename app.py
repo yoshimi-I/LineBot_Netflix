@@ -12,6 +12,8 @@ from linebot.models import (
     MessageEvent, TextMessage
 )
 from tinydb import TinyDB, Query
+
+from interfaces.services.main import MainFuncImpl
 from src.services.main import handle_main_func
 
 app = Flask(__name__)
@@ -50,7 +52,7 @@ def callback():
 def handle_message(event: MessageEvent):
     text = event.message.text
     user_id = event.source.user_id
-    handle_main_func(event,text,user_id,API_TOKEN,line_bot_api)
-
+    main_func = MainFuncImpl(event,text,user_id,API_TOKEN,line_bot_api)
+    main_func.handle_main_func()
 if __name__ == "__main__":
     app.run()
