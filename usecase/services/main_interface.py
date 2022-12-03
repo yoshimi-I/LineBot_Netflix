@@ -30,12 +30,13 @@ class MainFunc(ABC):
         pass
 
     @abstractmethod
-    def final_question_func(self, event: str,user_id: str, API_TOKEN: str, line_bot_api: LineBotApi):
+    def final_question_func(self, event: str, user_id: str, api_token: str, line_bot_api: LineBotApi):
         pass
 
     @abstractmethod
     def except_func(self, event: str, user_id: str, line_bot_api: LineBotApi):
         pass
+
     @abstractmethod
-    def handle_main_func(self, event: str, text: str, user_id: str, API_TOKEN: str, line_bot_api: LineBotApi):
+    def handle_main_func(self, event: str, text: str, user_id: str, api_token: str, line_bot_api: LineBotApi):
         pass
