@@ -19,7 +19,7 @@ class MainFuncImpl(MainFunc):
     def __init__(self):
         self.firebase = UserRepositoryImpl()
 
-    def handle_main_func(self,event: str, text: str, user_id: str, API_TOKEN: str, line_bot_api: LineBotApi):
+    def handle_main_func(self, event: str, text: str, user_id: str, api_token: str, line_bot_api: LineBotApi):
         # firebaseを扱うためにインスタンス化を行う
         try:
             ques_num: int = self.firebase.read_document_question_num("ques_id", user_id)
@@ -27,22 +27,21 @@ class MainFuncImpl(MainFunc):
             ques_num = 1
 
         if text == "探す" or text == "初めからやり直す":
-            self.first_question_func(event,user_id, line_bot_api)
+            self.first_question_func(event, user_id, line_bot_api)
         elif ques_num == 2:
-            self.second_question_func(event,user_id, line_bot_api)
+            self.second_question_func(event, user_id, line_bot_api)
         elif ques_num == 3:
-            self.third_question_func(event,user_id, line_bot_api)
+            self.third_question_func(event, user_id, line_bot_api)
         elif ques_num == 4:
-            self.fourth_question_func(event,user_id, line_bot_api)
+            self.fourth_question_func(event, user_id, line_bot_api)
         elif ques_num == 5:
-            self.fifth_question_func(event,user_id, line_bot_api)
+            self.fifth_question_func(event, user_id, line_bot_api)
         elif ques_num == 6:
-            self.sixth_question_func(event,user_id, line_bot_api)
+            self.sixth_question_func(event, user_id, line_bot_api)
         elif ques_num == 7:
-            self.final_question_func(event,user_id,API_TOKEN,line_bot_api)
+            self.final_question_func(event, user_id, api_token, line_bot_api)
         else:
-            self.except_func(event,user_id, line_bot_api)
-
+            self.except_func(event, user_id, line_bot_api)
 
     def first_question_func(self, event: str, user_id: str, line_bot_api: LineBotApi):
         try:
@@ -184,6 +183,7 @@ class MainFuncImpl(MainFunc):
                                 ])
                                 )
             )
+
     def fourth_question_func(self, event: str, user_id: str, line_bot_api: LineBotApi):
         try:
             # 受け取る値は1つまえの選択肢となる
@@ -337,6 +337,7 @@ class MainFuncImpl(MainFunc):
                                 ])
                                 )
             )
+
     def sixth_question_func(self, event: str, user_id: str, line_bot_api: LineBotApi):
         choice_num = 0
         try:
@@ -391,7 +392,7 @@ class MainFuncImpl(MainFunc):
                                 )
             )
 
-    def final_question_func(self, event: str,user_id: str, API_TOKEN: str, line_bot_api: LineBotApi):
+    def final_question_func(self, event: str, user_id: str, api_token: str, line_bot_api: LineBotApi):
         # 以下にAPIを呼び出す処理を記載
         try:
             mes = event.message.text
@@ -455,7 +456,7 @@ class MainFuncImpl(MainFunc):
                 res = res_5_format
             # 以下、jsonにとってきた値を代入していく
             for i in range(len(a)):
-                api = GetImgImpl(API_TOKEN, a[i])
+                api = GetImgImpl(api_token, a[i])
                 movie_info = api.videos_info()
                 res_body = res["contents"][i]
 
@@ -501,9 +502,9 @@ class MainFuncImpl(MainFunc):
                                 ])
                                 )
             )
+
     def except_func(self, event: str, user_id: str, line_bot_api: LineBotApi):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text="「探す」と入力することで映画の検索を開始します")
         )
-
