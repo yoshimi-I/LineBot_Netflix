@@ -2,6 +2,7 @@ import os
 
 from flask import Flask, request, abort
 
+
 from linebot import (
     LineBotApi, WebhookHandler
 )
@@ -14,12 +15,15 @@ from linebot.models import (
 from tinydb import TinyDB, Query
 
 from interfaces.services.main import MainFuncImpl
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 
 LINE_CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET")
 LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN")
 API_TOKEN = os.getenv("API_TOKEN")
+ABC=os.getenv("ABC")
 
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
