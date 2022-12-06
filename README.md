@@ -77,3 +77,4 @@ https://user-images.githubusercontent.com/89241539/203808209-f305903e-13e6-42a3-
   - entity,dto,seevicesを作成してリファクタリング
 - ver6.0
   - クリーンアーキテクチャで再構成
+  - デプロイ先をAWSに変更
