@@ -3,7 +3,7 @@ import dataclasses
 
 # ユーザーが持つ値のモデルをvalueobjectとして保持
 @dataclasses.dataclass
-class UserItems:
+class User:
     id: str
     content_type: str
     genre: str
