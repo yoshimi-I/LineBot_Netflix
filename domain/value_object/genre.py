@@ -20,7 +20,6 @@ class Genre:
             "null"
         ]
         if genre_name not in genre_list:
-            print("ques_id is not collect")
             raise ValueError("genre_name is not collect")
         self.genre_name = genre_name
 
