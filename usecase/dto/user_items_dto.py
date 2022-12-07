@@ -2,7 +2,7 @@ import dataclasses
 
 
 @dataclasses.dataclass
-class UserItemsEntity:
+class UserItemsDto:
     def __init__(self, user_items):
         self.__content_type: str = user_items["content_type"]
         self.__providers: str = user_items["providers"]
