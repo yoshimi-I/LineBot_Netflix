@@ -2,7 +2,7 @@ from justwatch import JustWatch
 from linebot import LineBotApi
 from linebot.models import TextSendMessage, QuickReply, QuickReplyButton, MessageAction, FlexSendMessage
 
-from domain.model.user_model import UserItems
+from domain.entity.user_model import User
 from infrastructure.firebase.repository.user_repository import UserRepositoryImpl
 from interfaces.api.get_img import GetImgImpl
 from interfaces.api.movie_search import MovieSearchImpl
@@ -46,7 +46,7 @@ class MainFuncImpl(MainFunc):
     def first_question_func(self, event: str, user_id: str, line_bot_api: LineBotApi):
         try:
             # まずは最初にDBのテーブルを作成
-            user_items = UserItems(user_id, "null", "null", "null", 0, 0, 9999, 2)
+            user_items = User(user_id, "null", "null", "null", 0, 0, 9999, 2)
             self.firebase.create_document(user_items)
 
             # 返却する言葉を実装
