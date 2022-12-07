@@ -3,16 +3,16 @@ import json
 from abc import ABC, abstractmethod
 from typing import Dict
 
-from domain.model.user_model import UserItems
+from domain.entity.user_model import User
 
 
 class UserRepository(ABC):
     @abstractmethod
-    def format_json(self, user_items: UserItems) -> Dict:
+    def format_json(self, user_items: User) -> Dict:
         pass
 
     @abstractmethod
-    def create_document(self, user_items: UserItems):
+    def create_document(self, user_items: User):
         pass
 
     @abstractmethod

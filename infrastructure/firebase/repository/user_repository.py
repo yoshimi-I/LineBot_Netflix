@@ -1,7 +1,7 @@
 # domainのrepositoryを実装
 from typing import Dict
 
-from domain.model.user_model import UserItems
+from domain.entity.user_model import User
 from domain.repository.user_repository_interface import UserRepository
 from infrastructure.firebase.database_connect import FirebaseConnect
 import firebase_admin
@@ -15,7 +15,7 @@ from firebase_admin import firestore
 class UserRepositoryImpl(UserRepository,FirebaseConnect):
     def __init__(self):
         FirebaseConnect.connect(self)
-    def format_json(self, user_items: UserItems):
+    def format_json(self, user_items: User):
         # firebaseに保存するときにjson形式である必要があるため,そのための処理を実装
         return {
             'id': user_items.id,
@@ -28,7 +28,7 @@ class UserRepositoryImpl(UserRepository,FirebaseConnect):
             "ques_id": user_items.ques_id,
         }
 
-    def create_document(self, user_items: UserItems):
+    def create_document(self, user_items: User):
         # すでに存在しているテーブルの場合は削除
         db = firestore.client()
         db.collection('user_info').document(user_items.id).delete()
