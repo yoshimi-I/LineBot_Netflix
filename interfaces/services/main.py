@@ -3,6 +3,13 @@ from linebot import LineBotApi
 from linebot.models import TextSendMessage, QuickReply, QuickReplyButton, MessageAction, FlexSendMessage
 
 from domain.entity.user_model import User
+from domain.value_object.choice_num import ChoiceNum
+from domain.value_object.content_type import ContentType
+from domain.value_object.end_year import EndYear
+from domain.value_object.genre import Genre
+from domain.value_object.providers import Providers
+from domain.value_object.ques_id import QuesNum
+from domain.value_object.start_year import StartYear
 from infrastructure.firebase.repository.user_repository import UserRepositoryImpl
 from interfaces.api.get_img import GetImgImpl
 from interfaces.api.movie_search import MovieSearchImpl
@@ -46,9 +53,15 @@ class MainFuncImpl(MainFunc):
     def first_question_func(self, event: str, user_id: str, line_bot_api: LineBotApi):
         try:
             # まずは最初にDBのテーブルを作成
-            user_items = User(user_id, "null", "null", "null", 0, 0, 9999, 2)
+            content_type = ContentType("null")
+            genre = Genre("null")
+            providers = Providers("null")
+            choice_num = ChoiceNum(0)
+            start_year = StartYear(0)
+            end_year = EndYear(9999)
+            ques_num = QuesNum(2)
+            user_items = User(user_id, content_type, genre, providers, choice_num, start_year, end_year, ques_num)
             self.firebase.create_document(user_items)
-
             # 返却する言葉を実装
             line_bot_api.reply_message(
                 event.reply_token,

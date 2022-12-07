@@ -19,13 +19,13 @@ class UserRepositoryImpl(UserRepository,FirebaseConnect):
         # firebaseに保存するときにjson形式である必要があるため,そのための処理を実装
         return {
             'id': user_items.id,
-            'content_type': user_items.content_type,
-            "genre": user_items.genre,
-            "providers": user_items.providers,
-            "choice_num": user_items.choice_num,
-            "start_year": user_items.start_year,
-            "end_year": user_items.end_year,
-            "ques_id": user_items.ques_id,
+            'content_type': user_items.content_type.name,
+            "genre": user_items.genre.genre_name,
+            "providers": user_items.providers.provider_name,
+            "choice_num": user_items.choice_num.choice_num,
+            "start_year": user_items.start_year.start_year,
+            "end_year": user_items.end_year.end_year,
+            "ques_id": user_items.ques_num.ques_num,
         }
 
     def create_document(self, user_items: User):
