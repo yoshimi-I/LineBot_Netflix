@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from linebot import LineBotApi
 
 
-# interface　-> interfaces/services/main.pyで実装
+# interface　-> controllers/services/main.pyで実装
 class MainFunc(ABC):
     @abstractmethod
     def first_question_func(self, event: str, user_id: str, line_bot_api: LineBotApi):

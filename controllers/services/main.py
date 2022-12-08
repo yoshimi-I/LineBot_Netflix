@@ -11,8 +11,8 @@ from domain.value_object.providers import Providers
 from domain.value_object.ques_id import QuesNum
 from domain.value_object.start_year import StartYear
 from infrastructure.firebase.repository.user_repository import UserRepositoryImpl
-from interfaces.api.get_img import GetImgImpl
-from interfaces.api.movie_search import MovieSearchImpl
+from controllers.api.get_img import GetImgImpl
+from controllers.api.movie_search import MovieSearchImpl
 from usecase.dto.user_items_dto import UserItemsDto
 from usecase.response.res_1 import res_1_format
 from usecase.response.res_2 import res_2_format
