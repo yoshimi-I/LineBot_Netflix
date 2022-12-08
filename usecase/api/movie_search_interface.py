@@ -3,7 +3,7 @@ from typing import List, Union, Dict
 
 
 # 主に動画のタイトルとurl,作品の評価を取得する
-# interfaceを作成　-> interfaces/api/movie_searchで実装
+# interfaceを作成　-> controllers/api/movie_searchで実装
 class MovieSearch(ABC):
     @abstractmethod
     def select_videos(self, num: int, page_num: int) -> List[str]:
