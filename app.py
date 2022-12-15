@@ -14,7 +14,7 @@ from linebot.models import (
 )
 from tinydb import TinyDB, Query
 
-from interfaces.services.main import MainFuncImpl
+from controllers.services.main import MainFuncImpl
 from dotenv import load_dotenv
 load_dotenv()
 

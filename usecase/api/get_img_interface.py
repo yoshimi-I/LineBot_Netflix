@@ -3,7 +3,7 @@ from typing import List, Union, Dict
 
 
 # 主に動画のタイトルをもとに,作品のイメージ画像と説明文を取得する
-# interfaceを作成　-> interfaces/api/get_imgで実装
+# interfaceを作成　-> controllers/api/get_imgで実装
 class GetImg(ABC):
     @abstractmethod
     def _json_by_get_request(self, url: str, params: dict) -> dict:

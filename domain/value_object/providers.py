@@ -13,7 +13,6 @@ class Providers:
 
         ]
         if provider_name not in providers_list:
-            print("ques_id is not collect")
             raise ValueError("provider_name is not collect")
         self.provider_name = provider_name
 
