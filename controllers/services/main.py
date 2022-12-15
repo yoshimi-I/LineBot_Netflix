@@ -418,7 +418,7 @@ class MainFuncImpl(MainFunc):
                                     quick_reply=QuickReply(items=[
                                         QuickReplyButton(action=MessageAction(label="大丈夫", text="大丈夫")),
                                         QuickReplyButton(
-                                            action=MessageAction(label="初めからやり直す", text="初めからやり直す")),
+                                            action=MessageAction(label="再実行", text="再実行")),
 
                                     ])
                                     )
