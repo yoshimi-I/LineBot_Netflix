@@ -23,10 +23,11 @@ from usecase.services.main_interface import MainFunc
 
 
 class MainFuncImpl(MainFunc):
-    def __init__(self):
+    def __init__(self,line_bot_api: LineBotApi):
         self.firebase = UserRepositoryImpl()
+        self.line_bot_api = line_bot_api
 
-    def handle_main_func(self, event: str, text: str, user_id: str, api_token: str, line_bot_api: LineBotApi):
+    def handle_main_func(self, event: str, text: str, user_id: str, api_token: str):
         # firebaseを扱うためにインスタンス化を行う
         try:
             ques_num: int = self.firebase.read_document_question_num("ques_id", user_id)
@@ -34,21 +35,21 @@ class MainFuncImpl(MainFunc):
             ques_num = 1
 
         if text == "探す" or text == "初めからやり直す":
-            self.first_question_func(event, user_id, line_bot_api)
+            self.first_question_func(event, user_id, self.line_bot_api)
         elif ques_num == 2:
-            self.second_question_func(event, user_id, line_bot_api)
+            self.second_question_func(event, user_id, self.line_bot_api)
         elif ques_num == 3:
-            self.third_question_func(event, user_id, line_bot_api)
+            self.third_question_func(event, user_id, self.line_bot_api)
         elif ques_num == 4:
-            self.fourth_question_func(event, user_id, line_bot_api)
+            self.fourth_question_func(event, user_id, self.line_bot_api)
         elif ques_num == 5:
-            self.fifth_question_func(event, user_id, line_bot_api)
+            self.fifth_question_func(event, user_id, self.line_bot_api)
         elif ques_num == 6:
-            self.sixth_question_func(event, user_id, line_bot_api)
+            self.sixth_question_func(event, user_id, self.line_bot_api)
         elif ques_num == 7:
-            self.final_question_func(event, user_id, api_token, line_bot_api)
+            self.final_question_func(event, user_id, api_token, self.line_bot_api)
         else:
-            self.except_func(event, user_id, line_bot_api)
+            self.except_func(event, user_id, self.line_bot_api)
 
     def first_question_func(self, event: str, user_id: str, line_bot_api: LineBotApi):
         try:

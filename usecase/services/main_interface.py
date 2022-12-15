@@ -38,5 +38,5 @@ class MainFunc(ABC):
         pass
 
     @abstractmethod
-    def handle_main_func(self, event: str, text: str, user_id: str, api_token: str, line_bot_api: LineBotApi):
+    def handle_main_func(self, event: str, text: str, user_id: str, api_token: str):
         pass
