@@ -49,10 +49,11 @@ def callback():
         abort(400)
 
     return 'OK'
-main_func = MainFuncImpl()
+
 @handler.add(MessageEvent, message=TextMessage)
 # ここから実装開始
 def handle_message(event: MessageEvent):
+    main_func = MainFuncImpl()
     text = event.message.text
     user_id = event.source.user_id
 
