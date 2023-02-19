@@ -5,6 +5,7 @@ COPY . .
 EXPOSE 8000
 CMD gunicorn app:app
 
-
+# AWS上にデプロイするときは以下の手順
+#  docker build -t netflix --platform amd64 .
 
 
