@@ -67,7 +67,10 @@ class GetImgImpl(GetImg):
         params = {'query': query, "language": self.language}
         url = f'{self.base_url_}search/tv'
         res = self._json_by_get_request(url, params)
-        description = res["results"][0]["overview"]
+        try:
+            description = res["results"][0]["overview"]
+        except:
+            description = ""
         if len(description) >= 100:
             description = description[:100]
             description += "..."
